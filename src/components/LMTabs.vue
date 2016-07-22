@@ -1,7 +1,10 @@
 <template>
     <div class="l-m-tabs">
-        <each-tab label="正算" content="这是正算这是正算这是正算"></each-tab>
-        <each-tab label="正算" content="这是正算这是正算这是正算"></each-tab>
+        <each-tab v-for="tab in tabs" 
+                  :label="tab.label" 
+                  :content="tab.content" 
+                  :is-active="tab.isActive">
+        </each-tab>
     </div>
 </template>
 
@@ -15,10 +18,12 @@ export default {
         }
     },
 
-    props: [
-        'label',
-        'content'
-    ],
+    props: {
+        tabs: {
+            type: Array,
+            required: true
+        }
+    },
 
     components: {
         EachTab

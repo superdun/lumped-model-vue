@@ -1,6 +1,8 @@
 <template>
     <div class="each-tab-wrap" @mouseover="changeTooltipState" @mouseout="changeTooltipState">
-        <label>{{ label }}</label>
+        <label :class="[ isActive ? 'active-tab' : '' ]">
+            {{ label }}
+        </label>
         <div v-show="isShowTooltip" class="each-tab-content">
             <span>提示：</span>{{ content }}
         </div>
@@ -17,7 +19,8 @@ export default {
 
     props: [
         'label',
-        'content'
+        'content',
+        'isActive'
     ],
 
     methods: {
@@ -32,11 +35,16 @@ export default {
 .each-tab-wrap {
     display: inline-block;
     transition: 1s;
-    background-color: #0d7b7b;
+    background-color: #333333;
     width: 100px;
     height: 30px;
     text-align: center;
     position: relative;
+    box-shadow: 2px 5px 5px rgba(0, 0, 0, 0.7);
+}
+
+.active-tab {
+    background-color: #0d7b7b;
 }
 
 .each-tab-wrap:hover {
@@ -47,7 +55,7 @@ export default {
     padding: 10px;
     background-color: #232628;
     width: 200px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    box-shadow: 2px 5px 5px rgba(0, 0, 0, 0.7);
     animation: emerge 1s;
 }
 

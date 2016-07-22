@@ -1,16 +1,32 @@
 <template>
     <l-m-header></l-m-header>
-    <l-m-tabs></l-m-tabs>
+    <l-m-tabs :tabs="tabs"></l-m-tabs>
+    <main>
+        <section v-if=""></section>
+    </main>
+    <l-m-footer></l-m-footer>
 </template>
 
 <script>
 import LMHeader from './components/LMHeader'
 import LMTabs from './components/LMTabs'
+import LMFooter from './components/LMFooter'
 
 export default {
+    data() {
+        return {
+            tabs: [
+                { label: '反算', content: '计算反应速率常数的过程', isActive: true },
+                { label: '正算', content: '', isActive: false }
+            ]
+
+        }
+    },
+
     components: {
         LMHeader,
-        LMTabs
+        LMTabs,
+        LMFooter
     }
 }
 </script>

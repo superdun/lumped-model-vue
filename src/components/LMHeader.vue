@@ -20,16 +20,15 @@ header {
     padding: 10px 20px;
     margin: 0;
     background-color: #212528;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
-    border-radius: 5px;
+    box-shadow: 2px 5px 5px rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: flex-start;
     align-items: center;
 }
 
 header img {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
 }
 
 header h1 {
