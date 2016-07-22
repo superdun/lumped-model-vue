@@ -15,6 +15,11 @@ export default {
         }
     },
 
+    props: [
+        'label',
+        'content'
+    ],
+
     components: {
         EachTab
     }
