@@ -1,13 +1,17 @@
 import RungeKutta from 'runge-kutta-4'
 
-class LumpedEquations {
-    constructor(operatingParams, fittingParams, options) {
+class LumpedModel {
+    constructor(operatingParams, options) {
+        operatingParams = operatingParams || {}
         options = options || {}
 
         // 是否使用 拟合速率参数 的方法，默认为false
         this.isFittingK = !!options.isFittingK
 
-        this.operatingParams = operatingParams
+        // 进料组成
+        this.yStart = operatingParams.yStart
+        // 实际产物比例
+        this.yActual = operatingParams.yActual
         // 温度
         this.temperature = operatingParams.temperature
         // 压力
@@ -19,20 +23,32 @@ class LumpedEquations {
         // 剂油比
         this.catalystOilRatio = operatingParams.catalystOilRatio
 
-        // cache the init guess value
-        this.initGuessOfFittingParams = fittingParams
-
-        this.params = fittingParams
+        this.params = []
     }
 
     derives(x, y) {
         var self = this
+        var params = self.params
+        var len = params.length - 3
 
         var dydx = []
 
-        var len = this.params.length - 3
-        var k = this.params.slice(0, len)
-        var inactivationFactor = this.params.slice(len)
+        // 反应速率常数
+        var k = []
+        // 活化能
+        var E = []
+        // 指前因子
+        var A = []
+        // 失活因子
+        var inactivationFactor = params.slice(len)
+
+        if (self.isFittingK) {
+            k = params.slice(0, len)
+        } else {
+            E = params.slice(0, len / 2)
+            A = params.slice(len / 2, len)
+            k = calculateArrhenius(A, E, self.temperature)
+        }
 
         // 饱和分HS
         dydx[0] = -(k[0] + k[1] + k[2] + k[3] + k[4] + k[5] + k[6] + k[7] + k[8]) * y[0]
@@ -82,8 +98,14 @@ class LumpedEquations {
         var self = this
         self.params = x
 
+        // var yStart = self.yStart
         var yActual = self.yActual
-        var yCalcul = new RungeKutta(self.derives, 0, self.yStart, 0.01).end(1)
+        // 绑定this
+        var derives = function(x, y) {
+            return self.derives(x, y)
+        }
+
+        var yCalcul = new RungeKutta(derives, 0, self.yStart, 0.01).end(1)
 
         var i, len = yActual.length, objectiveValue = 0
         for (i = 0; i < len; i++) {
@@ -118,6 +140,6 @@ function calculateArrhenius(A, E, T) {
 }
 
 export {
-    LumpedEquations,
+    LumpedModel,
     calculateArrhenius
 }
