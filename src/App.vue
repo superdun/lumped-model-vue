@@ -3,11 +3,11 @@
     <l-m-tabs :tabs="tabs"></l-m-tabs>
     <main>
         <section v-if="tabs[0].isActive">
-            <l-m-factors-table 
+            <l-m-factors-table
                 :caption="operationalFactors.caption"
                 :factors="operationalFactors.factors">
             </l-m-factors-table>
-            <l-m-factors-table 
+            <l-m-factors-table
                 :caption="feedFactors.caption"
                 :factors="feedFactors.factors">
             </l-m-factors-table>
@@ -18,7 +18,7 @@
             </l-m-k-table>
         </section>
         <section v-if="tabs[1].isActive">
-            
+
         </section>
     </main>
     <l-m-footer></l-m-footer>
@@ -30,6 +30,12 @@ import LMTabs from './components/LMTabs'
 import LMFooter from './components/LMFooter'
 import LMFactorsTable from './components/LMFactorsTable'
 import LMKTable from './components/LMKTable'
+import {
+    ObjectiveFunction,
+    LumpedEquations
+} from './MathModel.js'
+
+console.log(new ObjectiveFunction(), new LumpedEquations())
 
 export default {
     data() {
