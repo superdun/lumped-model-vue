@@ -79,9 +79,7 @@ class LumpedModel {
         var funcC = Math.exp(-inactivationFactor[1] * self.residenceTime * x)
         var funcN = 1 / (1 + inactivationFactor[2] * self.NPercent / self.catalystOilRatio)
         var speed = 1 / (self.residenceTime * self.catalystOilRatio)
-        var MA = 100 / (y[0] / 0.430 + y[1] / 0.430 + y[2] / 0.430 + y[3] / 0.200
-            + y[4] / 0.100 + y[5] / 0.100 + y[6] / 0.100
-            + y[7] / 0.040 + y[8] / 0.040 + y[9] / 0.040 + y[10] / 0.040 + y[11] / 0.018)
+        var MA = 0.43
 
         for (var i = 0; i < dydx.length; i++) {
             dydx[i] = dydx[i] * funcA * funcC * funcN * MA * self.pressure / (8.314 * self.temperature * speed)
@@ -111,6 +109,7 @@ class LumpedModel {
         for (i = 0; i < len; i++) {
             objectiveValue += (yActual[i] - yCalcul[i]) * (yActual[i] - yCalcul[i])
         }
+        console.log(yCalcul, objectiveValue)
 
         return objectiveValue
     }
