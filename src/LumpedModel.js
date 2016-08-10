@@ -1,5 +1,8 @@
 import RungeKutta from 'runge-kutta-4'
 
+// 气体常量, 单位：m3 * Pa * K-1 * mol-1
+const UNIVERSAL_GAS_CONSTANT = 8.3144598;
+
 class LumpedModel {
     constructor(operatingParams, options) {
         operatingParams = operatingParams || {}
@@ -79,10 +82,12 @@ class LumpedModel {
         var funcC = Math.exp(-inactivationFactor[1] * self.residenceTime * x)
         var funcN = 1 / (1 + inactivationFactor[2] * self.NPercent / self.catalystOilRatio)
         var speed = 1 / (self.residenceTime * self.catalystOilRatio)
-        var MA = 0.43
+
+        // 摩尔质量, 单位: kg/mol
+        var molecularWeights = 0.43
 
         for (var i = 0; i < dydx.length; i++) {
-            dydx[i] = dydx[i] * funcA * funcC * funcN * MA * self.pressure / (8.314 * self.temperature * speed)
+            dydx[i] = dydx[i] * funcA * funcC * funcN * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed)
         }
 
         return dydx
@@ -109,7 +114,7 @@ class LumpedModel {
         for (i = 0; i < len; i++) {
             objectiveValue += (yActual[i] - yCalcul[i]) * (yActual[i] - yCalcul[i])
         }
-        console.log(yCalcul, objectiveValue)
+        // console.log(yCalcul, objectiveValue)
 
         return objectiveValue
     }
@@ -123,8 +128,6 @@ class LumpedModel {
  * @return {array}       温度T下的反应速率常数
  */
 function calculateArrhenius(A, E, T) {
-    var UNIVERSAL_GAS_CONSTANT = 8.314; // 气体常数
-
     var k0, k = [];
 
     if (A.length !== E.length) throw 'A isn\'t match E';
