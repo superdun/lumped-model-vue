@@ -31,7 +31,12 @@ class LumpedModel {
 
     derives(x, y) {
         var self = this
-        var params = self.params
+        var params = []
+
+        for (var i = 0, len = params.length; i < len; i++) {
+            params[i] = Math.exp(self.params[i])
+        }
+
         var len = params.length - 3
 
         var dydx = []
@@ -87,7 +92,8 @@ class LumpedModel {
         var molecularWeights = 100 / (y[0] / 0.430 + y[1] / 0.430 + y[2] / 0.430 + y[3] / 0.200
                 + y[4] / 0.100 + y[5] / 0.100 + y[6] / 0.100
                 + y[7] / 0.040 + y[8] / 0.040 + y[9] / 0.040 + y[10] / 0.040 + y[11] / 0.018)
-
+        // console.log(molecularWeights)
+        // console.log(molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature))
         for (var i = 0; i < dydx.length; i++) {
             dydx[i] = dydx[i] * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed)
         }
@@ -101,16 +107,29 @@ class LumpedModel {
      */
     objectiveFn(x) {
         var self = this
+
+        var yStart = []
+        for (var i = 0, len = self.yStart.length; i < len; i++) {
+            yStart[i] = self.yStart[i]
+        }
+
         self.params = x
 
-        // var yStart = self.yStart
         var yActual = self.yActual
+
         // 绑定this
         var derives = function(x, y) {
             return self.derives(x, y)
         }
 
-        var yCalcul = new RungeKutta(derives, 0, self.yStart, 0.01).end(1)
+        var rk = new RungeKutta(derives, 0, yStart, 0.01)
+
+        for (var i = 0; i < 100; i++) {
+            rk.step()
+            // console.log(`第${i}次: ${rk.y}`)
+        }
+
+        var yCalcul = rk.y
 
         var i, len = yActual.length, objectiveValue = 0
         for (i = 0; i < len; i++) {
