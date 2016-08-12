@@ -84,10 +84,12 @@ class LumpedModel {
         var speed = 1 / (self.residenceTime * self.catalystOilRatio)
 
         // 摩尔质量, 单位: kg/mol
-        var molecularWeights = 0.43
+        var molecularWeights = 100 / (y[0] / 0.430 + y[1] / 0.430 + y[2] / 0.430 + y[3] / 0.200
+                + y[4] / 0.100 + y[5] / 0.100 + y[6] / 0.100
+                + y[7] / 0.040 + y[8] / 0.040 + y[9] / 0.040 + y[10] / 0.040 + y[11] / 0.018)
 
         for (var i = 0; i < dydx.length; i++) {
-            dydx[i] = dydx[i] * funcA * funcC * funcN * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed)
+            dydx[i] = dydx[i] * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed)
         }
 
         return dydx
