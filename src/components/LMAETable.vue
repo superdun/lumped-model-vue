@@ -3,16 +3,14 @@
         <caption>{{ caption }}</caption>
         <thead>
             <tr>
-                <th></th>
                 <th v-for="header in headers">{{ header }}</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="kRow in kMatrix">
-                <td>{{ kRow.lump }}</td>
-                <td v-for="k in kRow.ks">
-                    <input v-model="k.value" v-bind:disabled="k.isDisabled" number>
-                </td>
+            <tr v-for="kRow in kRows">
+                <td>{{ kRow.name }}</td>
+                <td><input v-model="kRow.A" number></td>
+                <td><input v-model="kRow.E" number></td>
             </tr>
         </tbody>
     </table>
@@ -20,12 +18,6 @@
 
 <script>
 export default {
-    data() {
-        return {
-
-        }
-    },
-
     props: {
         caption: {
             type: String,
@@ -36,7 +28,7 @@ export default {
             type: Array
         },
 
-        kMatrix: {
+        kRows: {
             type: Array,
             required: true
         }

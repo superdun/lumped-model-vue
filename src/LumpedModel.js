@@ -4,7 +4,7 @@ import RungeKutta from 'runge-kutta-4'
 const UNIVERSAL_GAS_CONSTANT = 8.3144598;
 
 class LumpedModel {
-    constructor(operatingParams, options) {
+    constructor(yStart, yActual, operatingParams, options) {
         operatingParams = operatingParams || {}
         options = options || {}
 
@@ -12,9 +12,9 @@ class LumpedModel {
         this.isFittingK = !!options.isFittingK
 
         // 进料组成
-        this.yStart = operatingParams.yStart
+        this.yStart = yStart
         // 实际产物比例
-        this.yActual = operatingParams.yActual
+        this.yActual = yActual
         // 温度
         this.temperature = operatingParams.temperature
         // 压力
@@ -32,10 +32,6 @@ class LumpedModel {
     derives(x, y) {
         var self = this
         var params = []
-
-        for (var i = 0, len = params.length; i < len; i++) {
-            params[i] = Math.exp(self.params[i])
-        }
 
         var len = params.length - 3
 

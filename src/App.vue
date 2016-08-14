@@ -1,7 +1,7 @@
 <template>
-<!--     <l-m-header></l-m-header>
-    <l-m-tabs :tabs="tabs"></l-m-tabs>
+    <l-m-header></l-m-header>
     <main>
+        <l-m-tabs :tabs="tabs"></l-m-tabs>
         <section v-if="tabs[0].isActive">
             <l-m-factors-table
                 :caption="operationalFactors.caption"
@@ -11,18 +11,33 @@
                 :caption="feedFactors.caption"
                 :factors="feedFactors.factors">
             </l-m-factors-table>
+            <l-m-factors-table
+                :caption="actualProducts.caption"
+                :factors="actualProducts.factors">
+            </l-m-factors-table>
+            <button @click="calculate" :disabled="isCalculating">计算</button>
+            <button @click="stopCalculate" :disabled="!isCalculating">终止</button>
+            <l-m-console
+                :caption="lmConsole.caption"
+                :data="lmConsole.data">
+            </l-m-console>
+            <!-- <l-m-a-e-table
+                :caption="AETable.caption"
+                :headers="AETable.headers"
+                :k-rows="AETable.kRows">
+            </l-m-a-e-table> -->
             <l-m-k-table
                 :caption="kTable.caption"
                 :headers="kTable.headers"
-                :k-rows="kTable.kRows">
+                :k-matrix="kTable.kMatrix">
             </l-m-k-table>
         </section>
+
         <section v-if="tabs[1].isActive">
 
         </section>
     </main>
-    <l-m-footer></l-m-footer> -->
-    <div></div>
+    <l-m-footer></l-m-footer>
 </template>
 
 <script>
@@ -30,56 +45,29 @@ import LMHeader from './components/LMHeader'
 import LMTabs from './components/LMTabs'
 import LMFooter from './components/LMFooter'
 import LMFactorsTable from './components/LMFactorsTable'
+import LMAETable from './components/LMAETable'
 import LMKTable from './components/LMKTable'
+import LMConsole from './components/LMConsole'
+
 import { LumpedModel } from './LumpedModel.js'
 import BFGS from 'bfgs-algorithm'
 
-var operatingParams = {
-    yStart: [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    yActual: [7.6*0.475,7.6*0.485,7.6*0.04,14.20,15.38,14.38,14.32,2.23,9.64,10.59,4.15,7.51],
-    temperature: 807.15,
-    pressure: 260000,
-    residenceTime: 4,
-    NPercent: 0.0004,
-    catalystOilRatio: 9.2
-}
 
-var initGuessFittingParams = [
-    0.0015, 0.0001, 0.0012, 0.0004, 0.0001, 0.00002, 0.0002, 0.0001, 0.00001,
-    0.00303, 0.00436, 0.00087, 0.00156, 0.00028, 0.00145, 0.00119, 0.00012, 0.00079,
-    0.00043, 0.00024, 0.00099, 0.00012, 0.00108, 0.0014, 0.00345, 0.00028,
-    0.00187, 0.00001, 0.00008, 0.00001, 0.00002, 0.00043, 0.00049,
-    0.00018, 0.00044, 0.00002, 0.00031, 0.00015, 0.00028, 0.00085,
-    0.000057, 0.000001, 0.000075, 0.000287, 0.000044, 0.000092, 0.000026, 0.000083, 0.000023,
-    0.000001, 0.000033, 0.000097, 0.00001, 0.000136,
-    0.0001, 0.0001, 0.0001
+const LUMPS = ['HS', 'HA', 'HR', 'DIESEL', 'GS', 'GO', 'GA', 'DGAS', 'LO3', 'LO4', 'LPGD', 'COKE']
+const ACTIVE_LUMPS = [
+    [false, false, false, false, false, false, false, false, false, false, false, false],
+    [false, false, false, false, false, false, false, false, false, false, false, false],
+    [false, false, false, false, false, false, false, false, false, false, false, false],
+    [true, true, true, false, false, false, false, false, false, false, false, false],
+    [true, true, true, true, false, true, false, false, false, false, false, false],
+    [true, true, true, true, true, false, false, false, false, false, false, false],
+    [true, true, true, true, true, true, false, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false]
 ]
-
-for (var i = 0, len = initGuessFittingParams.length; i < len; i++) {
-    initGuessFittingParams[i] = Math.log(initGuessFittingParams[i])
-}
-
-var option = {
-    isFittingK: true
-}
-
-var lm = new LumpedModel(operatingParams, option)
-
-var objectiveFn = function(x) {
-    return lm.objectiveFn(x)
-}
-
-var bfgs = new BFGS(objectiveFn, initGuessFittingParams)
-
-try {
-    for (var i = 0; i < 5; i++) {
-        bfgs.step()
-        console.log(bfgs.convergence)
-        console.log(lm.params)
-    }
-} catch(err) {
-    console.log(err)
-}
 
 export default {
     data() {
@@ -92,24 +80,39 @@ export default {
             operationalFactors: {
                 caption: '操作条件',
                 factors: [
-                    { name: '操作温度(K)：', key: 'T', value: '' },
-                    { name: '操作压力(Pa)：', key: 'P', value: '' },
+                    { name: '操作温度(K)：', key: 'temperature', value: '' },
+                    { name: '操作压力(Pa)：', key: 'pressure', value: '' },
                     { name: '剂油比：', key: 'catalystOilRatio', value: '' },
                     { name: '停留时间：', key: 'residenceTime', value: '' },
-                    { name: '回炼比：', key: 'repoRatio', value: '' }
+                    { name: '碱氮含量', key: 'NPercent', value: '' }
                 ]
             },
 
             feedFactors: {
                 caption: '进料组成',
                 factors: [
-                    { name: 'HS:', value: '' },
-                    { name: 'HA:', value: '' },
-                    { name: 'HR:', value: '' }
+                    { name: 'HS:', key: 0, value: '' },
+                    { name: 'HA:', key: 1, value: '' },
+                    { name: 'HR:', key: 2, value: '' }
                 ]
             },
 
-            kTable: {
+            actualProducts: {
+                caption: '实际产物',
+                factors: function(lumps) {
+                    var result = []
+                    for (var i = 0, len = lumps.length; i < len; i++) {
+                        result.push({
+                            name: lumps[i] + ':',
+                            key: i,
+                            value: ''
+                        })
+                    }
+                    return result
+                }(LUMPS)
+            },
+
+            AETable: {
                 caption: '初值设定',
                 headers: ['途径', '指前因子', '活化能'],
                 kRows: [
@@ -125,8 +128,105 @@ export default {
                     { name: '1 -> 4', A: '', E: ''},
                     { name: '1 -> 4', A: '', E: ''}
                 ]
+            },
+
+            kTable: {
+                caption: '速率常数初值设置',
+                headers: LUMPS,
+                kMatrix: generatorKMatrix(LUMPS, ACTIVE_LUMPS)
+            },
+
+            isCalculating: false,
+
+            lmConsole: {
+                caption: '数学模型拟合过程',
+                data: ''
+            }
+        }
+    },
+
+    methods: {
+        calculate: function() {
+            var self = this
+            self.isCalculating = true
+
+            // var operatingParams = {
+            //     yStart: [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            //     yActual: [7.6*0.475,7.6*0.485,7.6*0.04,14.20,15.38,14.38,14.32,2.23,9.64,10.59,4.15,7.51],
+            //     temperature: 807.15,
+            //     pressure: 260000,
+            //     residenceTime: 4,
+            //     NPercent: 0.0004,
+            //     catalystOilRatio: 9.2
+            // }
+            //
+            // var initGuessFittingParams = [
+            //     0.0015, 0.0001, 0.0012, 0.0004, 0.0001, 0.00002, 0.0002, 0.0001, 0.00001,
+            //     0.00303, 0.00436, 0.00087, 0.00156, 0.00028, 0.00145, 0.00119, 0.00012, 0.00079,
+            //     0.00043, 0.00024, 0.00099, 0.00012, 0.00108, 0.0014, 0.00345, 0.00028,
+            //     0.00187, 0.00001, 0.00008, 0.00001, 0.00002, 0.00043, 0.00049,
+            //     0.00018, 0.00044, 0.00002, 0.00031, 0.00015, 0.00028, 0.00085,
+            //     0.000057, 0.000001, 0.000075, 0.000287, 0.000044, 0.000092, 0.000026, 0.000083, 0.000023,
+            //     0.000001, 0.000033, 0.000097, 0.00001, 0.000136,
+            //     0.0001, 0.0001, 0.0001
+            // ]
+            function bindValue(target, isResultArray) {
+                var result = isResultArray ? [] : {}
+                target.forEach(function(item) {
+                    result[item.key] = item.value
+                })
+                return result
             }
 
+            function bindKMatrix(target) {
+                var result = []
+                for (var i = 0, len = target.length; i < len; i++) {
+                    for (var j = 0; j < len; j++) {
+                        if (!target[i]['ks'][j].isDisabled) {
+                            result.push(target[i]['ks'][j].value)
+                        }
+                    }
+                }
+                return result
+            }
+
+            var yStart = bindValue(self.feedFactors.factors, true).concat([0,0,0,0,0,0,0,0,0])
+            var operatingParams = bindValue(self.operationalFactors.factors, false)
+            var yActual = bindValue(self.actualProducts.factors, true)
+            var initGuessFittingParams = bindKMatrix(self.kTable.kMatrix)
+
+            console.log(yStart, operatingParams, yActual, initGuessFittingParams)
+
+            var lm = new LumpedModel(operatingParams, { isFittingK: true })
+
+            var bfgs = new BFGS((x) => lm.objectiveFn(x), initGuessFittingParams)
+
+            var iterator = 0
+            var MAX_ITERATOR = 200
+            var self = self
+            function step() {
+                setTimeout(function() {
+                    try {
+                        // bfgs.step()
+                        self.lmConsole.data += `第${++iterator}次迭代: [收敛值 -> ${bfgs.convergence}] [搜索步长 -> ${bfgs.stepsize}]\r`
+
+                        if (iterator < MAX_ITERATOR && self.isCalculating) {
+                            step()
+                        } else {
+                            self.isCalculating = false
+                        }
+
+                    } catch(err) {
+                        self.lmConsole.data += `拟合失败，请更改拟合初值\r`
+                        self.isCalculating = false
+                    }
+                }, 300)
+            }
+            step()
+        },
+
+        stopCalculate: function() {
+            this.isCalculating = false
         }
     },
 
@@ -135,8 +235,29 @@ export default {
         LMTabs,
         LMFooter,
         LMFactorsTable,
+        LMAETable,
+        LMConsole,
         LMKTable
     }
+}
+
+function generatorKMatrix(lumps, activeReaction) {
+    let len = lumps.length
+    let kMatrix = []
+
+    for (let i = 0; i < len; i++) {
+        kMatrix[i] = {}
+        kMatrix[i].lump = lumps[i]
+        kMatrix[i].ks = []
+        for (let j = 0; j < len; j++) {
+            kMatrix[i].ks[j] = {
+                value: '',
+                isDisabled: !activeReaction[i][j]
+            }
+        }
+    }
+
+    return kMatrix
 }
 </script>
 
@@ -190,6 +311,25 @@ input:read-only {
     background-color: #e0ad70;
 }
 
+button {
+    color: #fff;
+    height: 24px;
+    text-align: center;
+    background-color: #0f898a;
+    padding: 0 10px;
+}
+button:hover {
+    background-color: #00acad;
+}
+button:focus {
+    background-color: #046d6e;
+    outline: none;
+}
+button:disabled {
+    color: #929292;
+    background-color: #636363;
+}
+
 table {
     vertical-align: top;
     display: inline-block;
@@ -210,5 +350,30 @@ table th {
 }
 table td {
     padding: 0 5px;
+}
+
+main {
+    overflow: auto;
+    height: 100%;
+    padding: 60px 0 30px;
+}
+
+.lm-content-wrap {
+    vertical-align: top;
+    display: inline-block;
+    margin: 10px 20px;
+    padding: 10px;
+    background-color: #132222;
+    box-shadow: 5px 5px 5px #000;
+    border-radius: 5px;
+}
+.lm-content-wrap > h2 {
+    background-color: #1a4444;
+    color: #fff;
+    padding: 5px;
+    margin: -10px -10px 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 400;
 }
 </style>
