@@ -1,13 +1,20 @@
 <template>
-<!--     <l-m-header></l-m-header>
+    <l-m-header></l-m-header>
     <div class="main">
+
+        <div>
+            <input type="file" style="width: 300px">
+            <button @click="importFile">导入</button>
+            <button @click="exportFile">导出</button>
+            <button @click="downloadTemplate">模板下载</button>
+        </div>
         <l-m-tabs :tabs="tabs"></l-m-tabs>
-        <section v-if="tabs[0].isActive"> -->
+        <section v-if="tabs[0].isActive">
             <l-m-factors-table
                 :caption="operationalFactors.caption"
                 :factors="operationalFactors.factors">
             </l-m-factors-table>
-            <!-- <l-m-factors-table
+            <l-m-factors-table
                 :caption="feedFactors.caption"
                 :factors="feedFactors.factors">
             </l-m-factors-table>
@@ -20,13 +27,13 @@
             <l-m-console
                 :caption="lmConsole.caption"
                 :data="lmConsole.data">
-            </l-m-console> -->
+            </l-m-console>
             <!-- <l-m-a-e-table
                 :caption="AETable.caption"
                 :headers="AETable.headers"
                 :k-rows="AETable.kRows">
             </l-m-a-e-table> -->
-<!--             <l-m-k-table
+            <l-m-k-table
                 :caption="kTable.caption"
                 :headers="kTable.headers"
                 :k-matrix="kTable.kMatrix">
@@ -37,13 +44,7 @@
 
         </section>
     </div class="main">
-    <l-m-footer></l-m-footer> -->
-    <div>
-        <input type="file" style="width: 300px">
-        <button @click="importFile">导入</button>
-        <button @click="exportFile">导出</button>
-        <button @click="downloadTemplate">模板下载</button>
-    </div>
+    <l-m-footer></l-m-footer>
 </template>
 
 <script>
@@ -249,11 +250,28 @@ export default {
 
         exportFile: function() {
             var self = this
-            var csv = Papa.unparse({
+            var csv1 = Papa.unparse({
                 fields: ['name', 'value'],
                 data: self.operationalFactors.factors
             })
-            console.log("\uFEFF" + csv)
+
+            var csv2 = Papa.unparse({
+                fields: ['name', 'value'],
+                data: self.feedFactors.factors
+            })
+
+            var csv3 = Papa.unparse({
+                fields: ['name', 'value'],
+                data: self.actualProducts.factors
+            })
+
+            var a      = document.createElement('a')
+            a.href     = 'data:attachment/csv,' + '\uFEFF' + csv1 + csv2 + csv3
+            a.download = 'KMatrix.csv'
+
+            document.body.appendChild(a);
+            a.click();
+            a.parentNode.removeChild(a)
         },
 
         downloadTemplate: function() {
