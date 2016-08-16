@@ -1,13 +1,13 @@
 <template>
-    <l-m-header></l-m-header>
-    <main>
+<!--     <l-m-header></l-m-header>
+    <div class="main">
         <l-m-tabs :tabs="tabs"></l-m-tabs>
-        <section v-if="tabs[0].isActive">
+        <section v-if="tabs[0].isActive"> -->
             <l-m-factors-table
                 :caption="operationalFactors.caption"
                 :factors="operationalFactors.factors">
             </l-m-factors-table>
-            <l-m-factors-table
+            <!-- <l-m-factors-table
                 :caption="feedFactors.caption"
                 :factors="feedFactors.factors">
             </l-m-factors-table>
@@ -20,13 +20,13 @@
             <l-m-console
                 :caption="lmConsole.caption"
                 :data="lmConsole.data">
-            </l-m-console>
+            </l-m-console> -->
             <!-- <l-m-a-e-table
                 :caption="AETable.caption"
                 :headers="AETable.headers"
                 :k-rows="AETable.kRows">
             </l-m-a-e-table> -->
-            <l-m-k-table
+<!--             <l-m-k-table
                 :caption="kTable.caption"
                 :headers="kTable.headers"
                 :k-matrix="kTable.kMatrix">
@@ -36,11 +36,19 @@
         <section v-if="tabs[1].isActive">
 
         </section>
-    </main>
-    <l-m-footer></l-m-footer>
+    </div class="main">
+    <l-m-footer></l-m-footer> -->
+    <div>
+        <input type="file" style="width: 300px">
+        <button @click="importFile">导入</button>
+        <button @click="exportFile">导出</button>
+        <button @click="downloadTemplate">模板下载</button>
+    </div>
 </template>
 
 <script>
+import Papa from 'papaparse'
+
 import LMHeader from './components/LMHeader'
 import LMTabs from './components/LMTabs'
 import LMFooter from './components/LMFooter'
@@ -51,7 +59,6 @@ import LMConsole from './components/LMConsole'
 
 import { LumpedModel } from './LumpedModel.js'
 import BFGS from 'bfgs-algorithm'
-
 
 const LUMPS = ['HS', 'HA', 'HR', 'DIESEL', 'GS', 'GO', 'GA', 'DGAS', 'LO3', 'LO4', 'LPGD', 'COKE']
 const ACTIVE_LUMPS = [
@@ -80,10 +87,10 @@ export default {
             operationalFactors: {
                 caption: '操作条件',
                 factors: [
-                    { name: '操作温度(K)：', key: 'temperature', value: '' },
-                    { name: '操作压力(Pa)：', key: 'pressure', value: '' },
-                    { name: '剂油比：', key: 'catalystOilRatio', value: '' },
-                    { name: '停留时间：', key: 'residenceTime', value: '' },
+                    { name: '操作温度(K)', key: 'temperature', value: '' },
+                    { name: '操作压力(Pa)', key: 'pressure', value: '' },
+                    { name: '剂油比', key: 'catalystOilRatio', value: '' },
+                    { name: '停留时间', key: 'residenceTime', value: '' },
                     { name: '碱氮含量', key: 'NPercent', value: '' }
                 ]
             },
@@ -91,9 +98,9 @@ export default {
             feedFactors: {
                 caption: '进料组成',
                 factors: [
-                    { name: 'HS:', key: 0, value: '' },
-                    { name: 'HA:', key: 1, value: '' },
-                    { name: 'HR:', key: 2, value: '' }
+                    { name: 'HS', key: 0, value: '' },
+                    { name: 'HA', key: 1, value: '' },
+                    { name: 'HR', key: 2, value: '' }
                 ]
             },
 
@@ -103,7 +110,7 @@ export default {
                     var result = []
                     for (var i = 0, len = lumps.length; i < len; i++) {
                         result.push({
-                            name: lumps[i] + ':',
+                            name: lumps[i],
                             key: i,
                             value: ''
                         })
@@ -227,6 +234,30 @@ export default {
 
         stopCalculate: function() {
             this.isCalculating = false
+        },
+
+        importFile: function() {
+            var files = this.$el.getElementsByTagName('input')[0].files
+            if (files.length > 0) {
+                Papa.parse(files[0], {
+                    complete: function(results) {
+                        console.log(results)
+                    }
+                })
+            }
+        },
+
+        exportFile: function() {
+            var self = this
+            var csv = Papa.unparse({
+                fields: ['name', 'value'],
+                data: self.operationalFactors.factors
+            })
+            console.log("\uFEFF" + csv)
+        },
+
+        downloadTemplate: function() {
+
         }
     },
 
@@ -352,7 +383,7 @@ table td {
     padding: 0 5px;
 }
 
-main {
+.main {
     overflow: auto;
     height: 100%;
     padding: 60px 0 30px;
