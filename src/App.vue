@@ -1,14 +1,16 @@
 <template>
+<div>
     <l-m-header></l-m-header>
     <div class="main">
-
+        <l-m-tabs :tabs="tabs"></l-m-tabs>
         <div>
             <input type="file" style="width: 300px">
             <button @click="importFile">导入</button>
             <button @click="exportFile">导出</button>
             <button @click="downloadTemplate">模板下载</button>
+            <button @click="calculate" :disabled="isCalculating">计算</button>
+            <button @click="stopCalculate" :disabled="!isCalculating">终止</button>
         </div>
-        <l-m-tabs :tabs="tabs"></l-m-tabs>
         <section v-if="tabs[0].isActive">
             <l-m-factors-table
                 :caption="operationalFactors.caption"
@@ -22,8 +24,6 @@
                 :caption="actualProducts.caption"
                 :factors="actualProducts.factors">
             </l-m-factors-table>
-            <button @click="calculate" :disabled="isCalculating">计算</button>
-            <button @click="stopCalculate" :disabled="!isCalculating">终止</button>
             <l-m-console
                 :caption="lmConsole.caption"
                 :data="lmConsole.data">
@@ -45,6 +45,7 @@
         </section>
     </div class="main">
     <l-m-footer></l-m-footer>
+</div>
 </template>
 
 <script>
@@ -149,7 +150,9 @@ export default {
             lmConsole: {
                 caption: '数学模型拟合过程',
                 data: ''
-            }
+            },
+
+            initGuessFittingParams: []
         }
     },
 
@@ -158,15 +161,9 @@ export default {
             var self = this
             self.isCalculating = true
 
-            // var operatingParams = {
-            //     yStart: [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            //     yActual: [7.6*0.475,7.6*0.485,7.6*0.04,14.20,15.38,14.38,14.32,2.23,9.64,10.59,4.15,7.51],
-            //     temperature: 807.15,
-            //     pressure: 260000,
-            //     residenceTime: 4,
-            //     NPercent: 0.0004,
-            //     catalystOilRatio: 9.2
-            // }
+
+
+
             //
             // var initGuessFittingParams = [
             //     0.0015, 0.0001, 0.0012, 0.0004, 0.0001, 0.00002, 0.0002, 0.0001, 0.00001,
@@ -198,16 +195,28 @@ export default {
                 return result
             }
 
-            var yStart = bindValue(self.feedFactors.factors, true).concat([0,0,0,0,0,0,0,0,0])
-            var operatingParams = bindValue(self.operationalFactors.factors, false)
-            var yActual = bindValue(self.actualProducts.factors, true)
-            var initGuessFittingParams = bindKMatrix(self.kTable.kMatrix)
 
-            console.log(yStart, operatingParams, yActual, initGuessFittingParams)
+            var yStart = [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            var yActual = [7.6*0.475, 7.6*0.485, 7.6*0.04, 14.20, 15.38, 14.38, 14.32, 2.23, 9.64, 10.59, 4.15, 7.51]
+            var operatingParams = {
+                temperature: 807.15,
+                pressure: 260000,
+                residenceTime: 4,
+                NPercent: 0.0004,
+                catalystOilRatio: 9.2
+            }
 
-            var lm = new LumpedModel(operatingParams, { isFittingK: true })
+            // var yStart = bindValue(self.feedFactors.factors, true).concat([0,0,0,0,0,0,0,0,0])
+            // var operatingParams = bindValue(self.operationalFactors.factors, false)
+            // var yActual = bindValue(self.actualProducts.factors, true)
 
-            var bfgs = new BFGS((x) => lm.objectiveFn(x), initGuessFittingParams)
+            // this.initGuessFittingParams = bindKMatrix(self.kTable.kMatrix)
+
+            console.log(yStart, operatingParams, yActual, self.initGuessFittingParams)
+
+            var lm = new LumpedModel(operatingParams, { isFittingK: false })
+
+            var bfgs = new BFGS((x) => lm.objectiveFn(x), self.initGuessFittingParams)
 
             var iterator = 0
             var MAX_ITERATOR = 200
@@ -238,11 +247,18 @@ export default {
         },
 
         importFile: function() {
+            var self = this
             var files = this.$el.getElementsByTagName('input')[0].files
             if (files.length > 0) {
                 Papa.parse(files[0], {
                     complete: function(results) {
-                        console.log(results)
+                        var data = results.data
+                        var initGuessFittingParams = self.initGuessFittingParams = []
+                        var i, len = 54
+                        for (var i = 0; i < len; i++) {
+                            initGuessFittingParams[i] = Number(data[i][0])
+                            initGuessFittingParams[i + len] = Number(data[i][0])
+                        }
                     }
                 })
             }
@@ -250,6 +266,9 @@ export default {
 
         exportFile: function() {
             var self = this
+
+            var csvString = jsonToCsv(self.operationalFactors, self.feedFactors, self.actualProducts)
+
             var csv1 = Papa.unparse({
                 fields: ['name', 'value'],
                 data: self.operationalFactors.factors
@@ -265,8 +284,9 @@ export default {
                 data: self.actualProducts.factors
             })
 
+            var res = encodeURIComponent(csv1 + '\r\n' + csv2 + '\r\n' + csv3)
             var a      = document.createElement('a')
-            a.href     = 'data:attachment/csv,' + '\uFEFF' + csv1 + csv2 + csv3
+            a.href     = 'data:attachment/csv;charset=utf-8,\uFEFF' + res
             a.download = 'KMatrix.csv'
 
             document.body.appendChild(a);
@@ -288,6 +308,11 @@ export default {
         LMConsole,
         LMKTable
     }
+}
+function jsonToCsv() {
+    var args = arguments
+
+
 }
 
 function generatorKMatrix(lumps, activeReaction) {
