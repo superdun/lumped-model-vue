@@ -27,6 +27,8 @@ class LumpedModel {
         this.catalystOilRatio = operatingParams.catalystOilRatio
 
         this.params = []
+
+        this.k = []
     }
 
     derives(x, y) {
@@ -53,6 +55,8 @@ class LumpedModel {
             E = params.slice(len / 2, len)
             k = calculateArrhenius(A, E, self.temperature)
         }
+
+        self.k = k
 
         // 饱和分HS
         dydx[0] = -(k[0] + k[1] + k[2] + k[3] + k[4] + k[5] + k[6] + k[7] + k[8]) * y[0]
