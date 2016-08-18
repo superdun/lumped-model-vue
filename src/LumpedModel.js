@@ -31,7 +31,7 @@ class LumpedModel {
 
     derives(x, y) {
         var self = this
-        var params = []
+        var params = self.params
 
         var len = params.length - 3
 
@@ -49,8 +49,8 @@ class LumpedModel {
         if (self.isFittingK) {
             k = params.slice(0, len)
         } else {
-            E = params.slice(0, len / 2)
-            A = params.slice(len / 2, len)
+            A = params.slice(0, len / 2)
+            E = params.slice(len / 2, len)
             k = calculateArrhenius(A, E, self.temperature)
         }
 
@@ -91,7 +91,7 @@ class LumpedModel {
         // console.log(molecularWeights)
         // console.log(molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature))
         for (var i = 0; i < dydx.length; i++) {
-            dydx[i] = dydx[i] * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed)
+            dydx[i] = dydx[i] * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed) / 1000
         }
 
         return dydx
@@ -104,14 +104,30 @@ class LumpedModel {
     objectiveFn(x) {
         var self = this
 
+        for (var i = 0, len = x.length; i < len; i++) {
+            self.params[i] = Math.abs(x[i])
+        }
+
+        var yActual = self.yActual
+
+        var yCalcul = self.getProduct()
+
+        var i, len = yActual.length, objectiveValue = 0
+        for (i = 0; i < len; i++) {
+            objectiveValue += (yActual[i] - yCalcul[i]) * (yActual[i] - yCalcul[i])
+        }
+        // console.log(yCalcul, objectiveValue)
+
+        return objectiveValue
+    }
+
+    getProduct() {
+        var self = this
+
         var yStart = []
         for (var i = 0, len = self.yStart.length; i < len; i++) {
             yStart[i] = self.yStart[i]
         }
-
-        self.params = x
-
-        var yActual = self.yActual
 
         // 绑定this
         var derives = function(x, y) {
@@ -122,18 +138,9 @@ class LumpedModel {
 
         for (var i = 0; i < 100; i++) {
             rk.step()
-            // console.log(`第${i}次: ${rk.y}`)
         }
 
-        var yCalcul = rk.y
-
-        var i, len = yActual.length, objectiveValue = 0
-        for (i = 0; i < len; i++) {
-            objectiveValue += (yActual[i] - yCalcul[i]) * (yActual[i] - yCalcul[i])
-        }
-        // console.log(yCalcul, objectiveValue)
-
-        return objectiveValue
+        return rk.y
     }
 }
 

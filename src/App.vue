@@ -161,10 +161,6 @@ export default {
             var self = this
             self.isCalculating = true
 
-
-
-
-            //
             // var initGuessFittingParams = [
             //     0.0015, 0.0001, 0.0012, 0.0004, 0.0001, 0.00002, 0.0002, 0.0001, 0.00001,
             //     0.00303, 0.00436, 0.00087, 0.00156, 0.00028, 0.00145, 0.00119, 0.00012, 0.00079,
@@ -211,35 +207,50 @@ export default {
             // var yActual = bindValue(self.actualProducts.factors, true)
 
             // this.initGuessFittingParams = bindKMatrix(self.kTable.kMatrix)
+            self.initGuessFittingParams = [0.831,0.171,0.885,5.16e-02,2.90e-02,3.20e-02,9.41e-03,1.60e-02,2.27e-02,1.0488,0.168,0.151,0.219,2.21e-02,9.73e-02,4.79e-02,4.37e-02,4.33e-02,0.193,0.245,1.149,0.123,5.66e-02,0.162,0.108,0.39,6.46e-02,6.21e-02,5.71e-02,0.272,7.65e-03,5.16e-03,8.10e-03,2.98e-02,6.20e-02,0.176,6.45e-02,5.47e-03,9.82e-03,4.04e-02,1.06e-05,5.47e-04,0.454,0.401,1.49e-02,2.97e-02,2.46e-02,1.25e-13,8.78e-03,9.01e-02,1.57e-02,8.63e-02,1.36e-06,5.51e-02,2.725,0.943,1.291,7.296,8.877,8.95,7.787,13.068,9.576,4.796,4.045,14.1,13.574,4.748,3.42,3.792,0.709,3.387,10.108,14.348,15.824,16.016,4.001,1.921,1.352,0.954,3.914,14.446,13.083,12.24,16.307,3.716,3.469,8.251,10.288,14.641,15.717,18.289,13.124,12.893,15.4,19.805,12.657,8.966,14.655,12.108,12.195,13.523,11.37,10.251,11.935,10.422,14.017,9.364,1,1,1]
 
             console.log(yStart, operatingParams, yActual, self.initGuessFittingParams)
 
-            var lm = new LumpedModel(operatingParams, { isFittingK: false })
+            var lm = new LumpedModel(yStart, yActual, operatingParams, { isFittingK: false })
 
             var bfgs = new BFGS((x) => lm.objectiveFn(x), self.initGuessFittingParams)
 
             var iterator = 0
-            var MAX_ITERATOR = 200
-            var self = self
-            function step() {
-                setTimeout(function() {
-                    try {
-                        // bfgs.step()
-                        self.lmConsole.data += `第${++iterator}次迭代: [收敛值 -> ${bfgs.convergence}] [搜索步长 -> ${bfgs.stepsize}]\r`
+            var MAX_ITERATOR = 50
+            var i
 
-                        if (iterator < MAX_ITERATOR && self.isCalculating) {
-                            step()
-                        } else {
-                            self.isCalculating = false
-                        }
-
-                    } catch(err) {
-                        self.lmConsole.data += `拟合失败，请更改拟合初值\r`
-                        self.isCalculating = false
-                    }
-                }, 300)
+            try {
+                for (i = 0; i < MAX_ITERATOR; i++) {
+                    bfgs.step()
+                }
+            } catch(err) {
+                console.log(i + ':' +err)
             }
-            step()
+
+            console.log(bfgs)
+            console.log(lm)
+            lm.temperature = 787.15
+            console.log(lm.getProduct())
+
+            // function step() {
+            //     setTimeout(function() {
+            //         try {
+            //             // bfgs.step()
+            //             self.lmConsole.data += `第${++iterator}次迭代: [收敛值 -> ${bfgs.convergence}] [搜索步长 -> ${bfgs.stepsize}]\r`
+
+            //             if (iterator < MAX_ITERATOR && self.isCalculating) {
+            //                 step()
+            //             } else {
+            //                 self.isCalculating = false
+            //             }
+
+            //         } catch(err) {
+            //             self.lmConsole.data += `拟合失败，请更改拟合初值\r`
+            //             self.isCalculating = false
+            //         }
+            //     }, 300)
+            // }
+            // step()
         },
 
         stopCalculate: function() {
