@@ -192,16 +192,24 @@ export default {
             }
 
 
-            var yStart = [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            var yActual = [7.6*0.475, 7.6*0.485, 7.6*0.04, 14.20, 15.38, 14.38, 14.32, 2.23, 9.64, 10.59, 4.15, 7.51]
-            var operatingParams = {
+            var yStart1 = [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            var yActual1 = [8.5*0.475, 8.5*0.485, 8.5*0.04, 15.30, 18.05, 14.74, 12.70, 1.37, 8.37, 9.58, 4.37, 7.01]
+            var operatingParams1 = {
+                temperature: 787.15,
+                pressure: 260000,
+                residenceTime: 4,
+                NPercent: 0.0004,
+                catalystOilRatio: 9.2
+            }
+            var yStart2 = [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            var yActual2 = [7.6*0.475, 7.6*0.485, 7.6*0.04, 14.20, 15.38, 14.38, 14.32, 2.23, 9.64, 10.59, 4.15, 7.51]
+            var operatingParams2 = {
                 temperature: 807.15,
                 pressure: 260000,
                 residenceTime: 4,
                 NPercent: 0.0004,
                 catalystOilRatio: 9.2
             }
-
             // var yStart = bindValue(self.feedFactors.factors, true).concat([0,0,0,0,0,0,0,0,0])
             // var operatingParams = bindValue(self.operationalFactors.factors, false)
             // var yActual = bindValue(self.actualProducts.factors, true)
@@ -209,12 +217,15 @@ export default {
             // this.initGuessFittingParams = bindKMatrix(self.kTable.kMatrix)
             self.initGuessFittingParams = [0.831,0.171,0.885,5.16e-02,2.90e-02,3.20e-02,9.41e-03,1.60e-02,2.27e-02,1.0488,0.168,0.151,0.219,2.21e-02,9.73e-02,4.79e-02,4.37e-02,4.33e-02,0.193,0.245,1.149,0.123,5.66e-02,0.162,0.108,0.39,6.46e-02,6.21e-02,5.71e-02,0.272,7.65e-03,5.16e-03,8.10e-03,2.98e-02,6.20e-02,0.176,6.45e-02,5.47e-03,9.82e-03,4.04e-02,1.06e-05,5.47e-04,0.454,0.401,1.49e-02,2.97e-02,2.46e-02,1.25e-13,8.78e-03,9.01e-02,1.57e-02,8.63e-02,1.36e-06,5.51e-02,2.725,0.943,1.291,7.296,8.877,8.95,7.787,13.068,9.576,4.796,4.045,14.1,13.574,4.748,3.42,3.792,0.709,3.387,10.108,14.348,15.824,16.016,4.001,1.921,1.352,0.954,3.914,14.446,13.083,12.24,16.307,3.716,3.469,8.251,10.288,14.641,15.717,18.289,13.124,12.893,15.4,19.805,12.657,8.966,14.655,12.108,12.195,13.523,11.37,10.251,11.935,10.422,14.017,9.364,1,1,1]
 
-            var lm = new LumpedModel(yStart, yActual, operatingParams, { isFittingK: false })
+            var lm1 = new LumpedModel(yStart1, yActual1, operatingParams1, { isFittingK: false })
+            var lm2 = new LumpedModel(yStart2, yActual2, operatingParams2, { isFittingK: false })
 
-            var bfgs = new BFGS((x) => lm.objectiveFn(x), self.initGuessFittingParams)
+            var bfgs = new BFGS((x) => {
+                return lm1.objectiveFn(x) + lm2.objectiveFn(x)
+            }, self.initGuessFittingParams)
 
             var iterator = 0
-            var MAX_ITERATOR = 50
+            var MAX_ITERATOR = 200
             var i
 
             try {
@@ -225,7 +236,11 @@ export default {
                 console.log(i + ':' +err)
             }
 
-            self.k = lm.k
+            console.log(bfgs)
+            console.log(lm1.k)
+            console.log(lm2.k)
+
+            self.k = lm1.k
 
             // function step() {
             //     setTimeout(function() {

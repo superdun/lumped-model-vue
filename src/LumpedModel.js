@@ -92,8 +92,7 @@ class LumpedModel {
         var molecularWeights = 100 / (y[0] / 0.430 + y[1] / 0.430 + y[2] / 0.430 + y[3] / 0.200
                 + y[4] / 0.100 + y[5] / 0.100 + y[6] / 0.100
                 + y[7] / 0.040 + y[8] / 0.040 + y[9] / 0.040 + y[10] / 0.040 + y[11] / 0.018)
-        // console.log(molecularWeights)
-        // console.log(molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature))
+
         for (var i = 0; i < dydx.length; i++) {
             dydx[i] = dydx[i] * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed) / 1000
         }
@@ -169,7 +168,31 @@ function calculateArrhenius(A, E, T) {
     return k;
 }
 
+function calculateAE(o1, o2) {
+    var T1 = o1.T,
+        T2 = o2.T,
+        k1 = o1.k,
+        k2 = o2.k
+
+    var A = [], E = []
+
+    var i, len = k1.length
+    for (i = 0; i < len; i++) {
+        E[i] = UNIVERSAL_GAS_CONSTANT * (Math.log(k2[i] / k1[i])) / (1 / T1 - 1 / T2)
+    }
+
+    for (i = 0; i < len; i++) {
+        A[i] = k1[i] / (Math.exp(- E[i] / UNIVERSAL_GAS_CONSTANT / T1))
+    }
+
+    return {
+        A: A,
+        E: E
+    }
+}
+
 export {
     LumpedModel,
-    calculateArrhenius
+    calculateArrhenius,
+    calculateAE
 }
