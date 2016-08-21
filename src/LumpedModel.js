@@ -94,7 +94,7 @@ class LumpedModel {
                 + y[7] / 0.040 + y[8] / 0.040 + y[9] / 0.040 + y[10] / 0.040 + y[11] / 0.018)
 
         for (var i = 0; i < dydx.length; i++) {
-            dydx[i] = dydx[i] * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed) / 1000
+            dydx[i] =  dydx[i] * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed) / 1000
         }
 
         return dydx
@@ -150,7 +150,7 @@ class LumpedModel {
 /**
  * 根据阿伦尼乌斯方程计算温度为T的反应速率常数
  * @param  {array}   A   指前因子(单位：s-1)
- * @param  {array}   E   活化能(单位：J/mol)
+ * @param  {array}   E   活化能(单位：kJ/mol)
  * @param  {number}  T   温度(单位：K)
  * @return {array}       温度T下的反应速率常数
  */
@@ -161,7 +161,7 @@ function calculateArrhenius(A, E, T) {
 
     var i, len = A.length;
     for (i = 0; i < len; i++) {
-        k0 = A[i] * Math.exp(-E[i] / (UNIVERSAL_GAS_CONSTANT * T));
+        k0 = A[i] * Math.exp(-E[i] * 1000 / (UNIVERSAL_GAS_CONSTANT * T));
         k.push(k0);
     }
 

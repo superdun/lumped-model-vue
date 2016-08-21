@@ -152,7 +152,29 @@ export default {
                 data: ''
             },
 
-            k: []
+            k: {
+                '807.15': [],
+                '797.15': [],
+                '787.15': []
+            },
+
+            params: [],
+
+            yCalcu: {
+                1: [],
+                2: [],
+                3: [],
+                4: [],
+                5: []
+            },
+
+            yActual: {
+                1: [],
+                2: [],
+                3: [],
+                4: [],
+                5: []
+            }
         }
     },
 
@@ -191,22 +213,53 @@ export default {
                 return result
             }
 
-
+            // 第一组数据
             var yStart1 = [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            var yActual1 = [8.5*0.475, 8.5*0.485, 8.5*0.04, 15.30, 18.05, 14.74, 12.70, 1.37, 8.37, 9.58, 4.37, 7.01]
+            var yActual1 = [8.12*0.475, 8.12*0.485, 8.12*0.04, 14.30, 15.65, 14.58, 14.43, 2.53, 9.14, 10.02, 3.88, 7.34]
             var operatingParams1 = {
-                temperature: 787.15,
-                pressure: 260000,
-                residenceTime: 4,
+                temperature: 807.15,
+                pressure: 175000,
+                residenceTime: 3,
                 NPercent: 0.0004,
-                catalystOilRatio: 9.2
+                catalystOilRatio: 8.5
             }
+            // 第二组数据
             var yStart2 = [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             var yActual2 = [7.6*0.475, 7.6*0.485, 7.6*0.04, 14.20, 15.38, 14.38, 14.32, 2.23, 9.64, 10.59, 4.15, 7.51]
             var operatingParams2 = {
                 temperature: 807.15,
-                pressure: 260000,
-                residenceTime: 4,
+                pressure: 175000,
+                residenceTime: 3,
+                NPercent: 0.0004,
+                catalystOilRatio: 9.2
+            }
+            // 第三组数据
+            var yStart3 = [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            var yActual3 = [7.44*0.475, 7.44*0.485, 7.44*0.04, 14.21, 15.26, 14.42, 14.59, 2.11, 9.64, 10.48, 4.16, 7.68]
+            var operatingParams3 = {
+                temperature: 807.15,
+                pressure: 175000,
+                residenceTime: 3,
+                NPercent: 0.0004,
+                catalystOilRatio: 9.5
+            }
+            // 第四组数据
+            var yStart4 = [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            var yActual4 = [8.0*0.475, 8.0*0.485, 8.0*0.04, 15.10, 16.97, 14.75, 13.58, 1.82, 8.88, 9.76, 3.83, 7.31]
+            var operatingParams4 = {
+                temperature: 797.15,
+                pressure: 175000,
+                residenceTime: 3,
+                NPercent: 0.0004,
+                catalystOilRatio: 8.9
+            }
+            // 第五组数据
+            var yStart5 = [48.1, 47.2, 4.7, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            var yActual5 = [8.5*0.475, 8.5*0.485, 8.5*0.04, 15.30, 18.05, 14.74, 12.70, 1.37, 8.37, 9.58, 4.37, 7.01]
+            var operatingParams5 = {
+                temperature: 787.15,
+                pressure: 175000,
+                residenceTime: 3,
                 NPercent: 0.0004,
                 catalystOilRatio: 9.2
             }
@@ -215,32 +268,59 @@ export default {
             // var yActual = bindValue(self.actualProducts.factors, true)
 
             // this.initGuessFittingParams = bindKMatrix(self.kTable.kMatrix)
-            self.initGuessFittingParams = [0.831,0.171,0.885,5.16e-02,2.90e-02,3.20e-02,9.41e-03,1.60e-02,2.27e-02,1.0488,0.168,0.151,0.219,2.21e-02,9.73e-02,4.79e-02,4.37e-02,4.33e-02,0.193,0.245,1.149,0.123,5.66e-02,0.162,0.108,0.39,6.46e-02,6.21e-02,5.71e-02,0.272,7.65e-03,5.16e-03,8.10e-03,2.98e-02,6.20e-02,0.176,6.45e-02,5.47e-03,9.82e-03,4.04e-02,1.06e-05,5.47e-04,0.454,0.401,1.49e-02,2.97e-02,2.46e-02,1.25e-13,8.78e-03,9.01e-02,1.57e-02,8.63e-02,1.36e-06,5.51e-02,2.725,0.943,1.291,7.296,8.877,8.95,7.787,13.068,9.576,4.796,4.045,14.1,13.574,4.748,3.42,3.792,0.709,3.387,10.108,14.348,15.824,16.016,4.001,1.921,1.352,0.954,3.914,14.446,13.083,12.24,16.307,3.716,3.469,8.251,10.288,14.641,15.717,18.289,13.124,12.893,15.4,19.805,12.657,8.966,14.655,12.108,12.195,13.523,11.37,10.251,11.935,10.422,14.017,9.364,1,1,1]
+            // self.initGuessFittingParams = [0.831,0.171,0.885,5.16e-02,2.90e-02,3.20e-02,9.41e-03,1.60e-02,2.27e-02,1.0488,0.168,0.151,0.219,2.21e-02,9.73e-02,4.79e-02,4.37e-02,4.33e-02,0.193,0.245,1.149,0.123,5.66e-02,0.162,0.108,0.39,6.46e-02,6.21e-02,5.71e-02,0.272,7.65e-03,5.16e-03,8.10e-03,2.98e-02,6.20e-02,0.176,6.45e-02,5.47e-03,9.82e-03,4.04e-02,1.06e-05,5.47e-04,0.454,0.401,1.49e-02,2.97e-02,2.46e-02,1.25e-13,8.78e-03,9.01e-02,1.57e-02,8.63e-02,1.36e-06,5.51e-02,2.725,0.943,1.291,7.296,8.877,8.95,7.787,13.068,9.576,4.796,4.045,14.1,13.574,4.748,3.42,3.792,0.709,3.387,10.108,14.348,15.824,16.016,4.001,1.921,1.352,0.954,3.914,14.446,13.083,12.24,16.307,3.716,3.469,8.251,10.288,14.641,15.717,18.289,13.124,12.893,15.4,19.805,12.657,8.966,14.655,12.108,12.195,13.523,11.37,10.251,11.935,10.422,14.017,9.364,1,1,1]
 
+            self.initGuessFittingParams = [37.50086425,309.0873674,387.1314028,219.0372444,2221.971078,6568.841545,2221.945277,2221.651326,11.6113845,25.75227419,960.5593774,814.9404083,400.8460544,9000.045491,8034.867892,9000.002745,8999.960343,20.9722689,1.70804269,105.495923,120.8633678,75.17604336,26.85769521,31.61925198,26.8250078,26.59346447,44.37673974,32400000,58800000,20000000,2400000,2580000,2400000,2400000,31.5676,450658.9942,2.06E+14,329999.9973,19114.18582,330000.0026,330000.0082,17100000000,1330.983123,394.6209516,34000000,7350000,34000000,34000000,12400000,18000.00134,203000000,18000.00224,18000.00143,2120000000,15.38783403,51.58091535,23.24757759,21.61774522,63.24304966,46.87023721,39.3362073,42.67290199,18.93567048,6.326433156,25.6270149,37.40452008,39.73176153,57.972794,62.06013493,54.23705297,84.31289581,24.24203655,37.30761572,46.25438969,46.65748479,45.72198561,36.27343106,36.7025734,36.39260826,36.29917096,0.327459819,129.9123464,131.5916016,125.3924032,127.1569463,127.4479459,127.6135086,129.0121508,128.0008564,107.5808518,209.9419822,94.5720381,68.08019766,86.7547876,110.2861527,153.325739,59.94546278,46.69479381,148.7407064,101.9267229,149.4051483,150.4436438,115.5183132,100.7188347,130.8507,100.9040376,101.4525465,158.1303922,0.00000005,0.00000004,0.00000002]
             var lm1 = new LumpedModel(yStart1, yActual1, operatingParams1, { isFittingK: false })
             var lm2 = new LumpedModel(yStart2, yActual2, operatingParams2, { isFittingK: false })
+            var lm3 = new LumpedModel(yStart3, yActual3, operatingParams3, { isFittingK: false })
+            var lm4 = new LumpedModel(yStart4, yActual4, operatingParams4, { isFittingK: false })
+            var lm5 = new LumpedModel(yStart5, yActual5, operatingParams5, { isFittingK: false })
 
             var bfgs = new BFGS((x) => {
-                return lm1.objectiveFn(x) + lm2.objectiveFn(x)
+                return lm2.objectiveFn(x) + lm5.objectiveFn(x)
             }, self.initGuessFittingParams)
 
             var iterator = 0
-            var MAX_ITERATOR = 200
+            var MAX_ITERATOR = 20
             var i
 
             try {
                 for (i = 0; i < MAX_ITERATOR; i++) {
                     bfgs.step()
+                    console.log(bfgs.convergence)
+                    if (bfgs.convergence < 0.03) {
+                        break
+                    }
                 }
             } catch(err) {
                 console.log(i + ':' +err)
             }
 
             console.log(bfgs)
-            console.log(lm1.k)
-            console.log(lm2.k)
+            console.log(lm1)
+            console.log(lm2)
+            console.log(lm3)
+            console.log(lm4)
+            console.log(lm5)
 
-            self.k = lm1.k
+            self.yCalcu[1] = lm1.getProduct()
+            self.yCalcu[2] = lm2.getProduct()
+            self.yCalcu[3] = lm3.getProduct()
+            self.yCalcu[4] = lm4.getProduct()
+            self.yCalcu[5] = lm5.getProduct()
+
+            self.yActual[1] = lm1.yActual
+            self.yActual[2] = lm2.yActual
+            self.yActual[3] = lm3.yActual
+            self.yActual[4] = lm4.yActual
+            self.yActual[5] = lm5.yActual
+
+            self.k['807.15'] = lm1.k
+            self.k['797.15'] = lm4.k
+            self.k['787.15'] = lm5.k
+
+            self.params = lm1.params
 
             // function step() {
             //     setTimeout(function() {
@@ -287,31 +367,26 @@ export default {
 
         exportFile: function() {
             var self = this
+            var csv = '807.15K,797.15K,787.15\r\n'
 
-            // var csvString = jsonToCsv(self.operationalFactors, self.feedFactors, self.actualProducts)
+            var i, len = self.k['807.15'].length
+            for (i = 0; i < len; i++) {
+                csv += self.k['807.15'][i] + ',' + self.k['797.15'][i] + ',' + self.k['787.15'][i] + '\r\n'
+            }
 
-            // var csv1 = Papa.unparse({
-            //     fields: ['name', 'value'],
-            //     data: self.operationalFactors.factors
-            // })
+            csv += 'Params\r\n'
+            for (i = 0, len = self.params.length; i < len; i++) {
+                csv += self.params[i] + '\r\n'
+            }
 
-            // var csv2 = Papa.unparse({
-            //     fields: ['name', 'value'],
-            //     data: self.feedFactors.factors
-            // })
-
-            // var csv3 = Papa.unparse({
-            //     fields: ['name', 'value'],
-            //     data: self.actualProducts.factors
-            // })
-            console.log(self.k)
-            var csv = '807.15k\r\n'
-            for (var i = 0, len = self.k.length; i < len; i++) {
-                csv += self.k[i] + '\r\n'
+            for (i = 1; i < 6; i ++) {
+                csv += '第' + i + '组\r\n'
+                for (var j = 0; j < 12; j++) {
+                    csv += self.yActual[i][j] + ',' + self.yCalcu[i][j] + '\r\n'
+                }
             }
 
             var res = encodeURIComponent(csv)
-
             var a      = document.createElement('a')
             a.href     = 'data:attachment/csv;charset=utf-8,\uFEFF' + res
             a.download = 'KMatrix.csv'
