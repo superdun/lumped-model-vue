@@ -84,17 +84,17 @@ class LumpedModel {
         dydx[11] = k[8] * y[0] + k[17] * y[1] + k[26] * y[2] + k[34] * y[3] + k[41] * y[4] + k[48] * y[5] + k[53] * y[6]
 
         var funcA = 1 / (1 + inactivationFactor[0] * y[1])
-        var funcC = Math.exp(-inactivationFactor[1] * self.residenceTime * x)
+        var funcC = Math.exp(-inactivationFactor[1] * self.residenceTime)
         var funcN = 1 / (1 + inactivationFactor[2] * self.NPercent / self.catalystOilRatio)
         var speed = 1 / (self.residenceTime * self.catalystOilRatio)
 
         // 摩尔质量, 单位: kg/mol
-        var molecularWeights = 100 / (y[0] / 0.430 + y[1] / 0.430 + y[2] / 0.430 + y[3] / 0.200
+        var molecularWeights = 1 / (y[0] / 0.430 + y[1] / 0.430 + y[2] / 0.430 + y[3] / 0.200
                 + y[4] / 0.100 + y[5] / 0.100 + y[6] / 0.100
                 + y[7] / 0.040 + y[8] / 0.040 + y[9] / 0.040 + y[10] / 0.040 + y[11] / 0.018)
 
         for (var i = 0; i < dydx.length; i++) {
-            dydx[i] =  dydx[i] * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed) / 1000
+            dydx[i] = dydx[i] * molecularWeights * self.pressure / (UNIVERSAL_GAS_CONSTANT * self.temperature * speed)
         }
 
         return dydx
@@ -119,6 +119,7 @@ class LumpedModel {
         for (i = 0; i < len; i++) {
             objectiveValue += (yActual[i] - yCalcul[i]) * (yActual[i] - yCalcul[i])
         }
+
         // console.log(yCalcul, objectiveValue)
 
         return objectiveValue
