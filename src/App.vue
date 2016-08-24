@@ -1,8 +1,8 @@
 <template>
 <div>
-<!--     <l-m-header></l-m-header>
+    <l-m-header></l-m-header>
     <div class="main">
-        <l-m-tabs :tabs="tabs"></l-m-tabs> -->
+        <l-m-tabs :tabs="tabs"></l-m-tabs>
         <div>
             <input type="file" style="width: 300px">
             <button @click="importFile">导入</button>
@@ -11,7 +11,7 @@
             <button @click="calculate" :disabled="isCalculating">计算</button>
             <button @click="stopCalculate" :disabled="!isCalculating">终止</button>
         </div>
-<!--         <section v-if="tabs[0].isActive">
+        <section v-if="tabs[0].isActive">
             <l-m-factors-table
                 :caption="operationalFactors.caption"
                 :factors="operationalFactors.factors">
@@ -27,13 +27,13 @@
             <l-m-console
                 :caption="lmConsole.caption"
                 :data="lmConsole.data">
-            </l-m-console> -->
+            </l-m-console>
             <!-- <l-m-a-e-table
                 :caption="AETable.caption"
                 :headers="AETable.headers"
                 :k-rows="AETable.kRows">
             </l-m-a-e-table> -->
-<!--             <l-m-k-table
+            <l-m-k-table
                 :caption="kTable.caption"
                 :headers="kTable.headers"
                 :k-matrix="kTable.kMatrix">
@@ -44,7 +44,7 @@
 
         </section>
     </div class="main">
-    <l-m-footer></l-m-footer> -->
+    <l-m-footer></l-m-footer>
 </div>
 </template>
 
@@ -269,22 +269,7 @@ export default {
 
             // this.initGuessFittingParams = bindKMatrix(self.kTable.kMatrix)
 
-            self.initGuessFittingParams = [
-                26.79560582,308.9539743,387.0627596,219.0088849,2221.854376,305.759621,2221.917771,2221.534648,10.15570716,
-                10.115365752,960.5148573,814.9718567,400.8134957,9000.00788,8034.84596,8999.919257,8999.96938,18.370951,
-                4.12415384,105.7165732,121.1212562,75.45728304,26.93275126,32.25212843,27.45262069,27.15780893,3.317602779,
-                32400000,58800000,20000000,2400000,2580000,2400000,2400000,30.12748555,
-                450658.9923,2.06E+12,329999.9989,19114.1758,329999.9997,330000.0081,17100000000,1330.955517,394.5998278,34000000,7350000,34000000,34000000,12400000,18000.00603,203000000,18000.00166,18000.00847,2120000000,
-                20.586398565694623, 39.73374888348373, 40.157863678221304, 42.39088938660048, 70.06473772340762, 66.51029829383914, 56.69822688135666, 59.098657219517804, 26.866264610945063,
-                16.425019043327264, 41.81540149488168, 46.19250009177392, 47.76096926092399, 82.28083877592063, 76.70377120839291, 79.09684199969037, 87.15011901063443, 33.82299223091391,
-                18.16520290867562, 38.02115268163156, 37.43262273968059, 40.01259337439773, 34.95391065613341, 28.573720574564327, 28.273186878061516, 29.642492805649955, 9.219997038150703,
-                121.44472198221058, 122.99066634196635, 127.81308903678558, 128.8707890496875, 129.92824522753747, 129.49075358359326, 132.0114679378595, 38.09561096298383,
-                107.3879503967382, 250.1688100874581, 105.26419283190545, 67.80967641649626, 90.58110359610984, 113.53748716314338, 174.56316836484393,
-                61.562807472008586, 43.75430393417363, 147.95327006326931, 126.52031166082853, 149.6575323749135, 152.0099933276576, 126.51036942373399,
-                100.46887062858448, 148.83535626060683, 100.96576698756049, 102.19837048176268, 161.06844761261735
-                ,5.00E-08,4.00E-08,2.00E-08
-            ]
-
+            self.initGuessFittingParams = [26.323862525264236,309.07986327678253,387.3858001957765,219.10812266051664,2221.8420253556446,305.7916042963662,2221.9302201654923,2221.511634108338,6.680620142280736,16.84038445995668,960.5934277048681,815.1900776409183,400.9014674371774,9000.006248610196,8034.857629936584,8999.926827398805,8999.972512066512,16.44045105754445,6.884606096050719,105.76018554607474,121.25373481808212,75.54872157468003,26.74307726542151,33.70821469501424,28.01838066773411,28.033634483552618,4.601198339639468,32400000,20000000,58800000,2400000,2580000,2400000,2400000,29.98154494139616,450658.9940020465,206000000000000,329999.99827521964,19114.184916359744,329999.99982040667,330000.0069967139,17100000000,1330.9066422485505,394.7841715927623,34000000,7350000,34000000,34000000,12400000,18000.005471944834,203000000,18000.001930308423,18000.00815951124,2120000000,22.011592432942514,40.200870515263055,42.04854967805913,42.62948223961419,73.8564955011389,64.97550123089397,53.912920644014875,61.47435949408731,22.244677010323738,22.772642917047122,43.920321903707915,45.2299487407915,47.9755653580085,81.69736571649996,64.84863366986825,74.66344840928791,78.76587991692624,31.2885616971238,19.724257415214193,38.3964574573971,37.856310324570025,39.23215034977291,35.970330309192114,22.231147296149317,26.109434948646125,25.117397899549847,20.265677015794687,130.17948173204334,125.15910798112697,133.36535616925403,121.25311565061048,130.7628479013195,130.8371595127693,133.65426477926476,166.58781317795334,98.5567749080043,236.93085301484274,101.99043170372113,77.63993229246157,103.23942850062545,103.28868969059269,164.91062371970085,69.89736785616901,42.39554779326961,146.85326935839825,119.80543015224019,149.38020307796293,152.80467524052713,133.76488935814777,100.64662360125942,150.5957771312729,101.26545666543156,102.88287227996994,170.6852549392779,5e-8,4e-8,2e-8]
             var Worker = require('worker!./calculating.js')
             var worker = new Worker()
             worker.postMessage({
@@ -301,18 +286,32 @@ export default {
 
             worker.onmessage = function(event) {
                 let data = event.data
+                self.lmConsole.data += data.msg
 
                 switch(data.type) {
                     case 'calculating':
-                        console.log(data.msg)
                         break
-                    case 'err':
-                        console.log(data.msg)
+                    case 'done':
+                    case 'over':
+                        console.log(data.data)
+                        dealData(data.data)
+                        // console.log(logData(data.data.k))
+                        // console.log(logData(data.data.params))
                         break
                     default:
                         break
                 }
                 // worker.terminate()
+            }
+
+            function logData(data) {
+                let str = '['
+                for (let i = 0, len = data.length; i < len; i++) {
+                    str += data[i] + ','
+                }
+                str += ']'
+
+                return str
             }
 
             // console.log(bfgs)
@@ -321,48 +320,30 @@ export default {
             // console.log(lm3)
             // console.log(lm4)
             // console.log(lm5)
+            function dealData(data) {
+                self.params = data.params
 
-            // self.yCalcu[1] = lm1.getProduct()
-            // self.yCalcu[2] = lm2.getProduct()
-            // self.yCalcu[3] = lm3.getProduct()
-            // self.yCalcu[4] = lm4.getProduct()
-            // self.yCalcu[5] = lm5.getProduct()
+                self.yCalcu[1] = data.yCalcu[0]
+                self.yCalcu[2] = data.yCalcu[1]
+                self.yCalcu[3] = data.yCalcu[2]
+                self.yCalcu[4] = data.yCalcu[3]
+                self.yCalcu[5] = data.yCalcu[4]
 
-            // self.yActual[1] = lm1.yActual
-            // self.yActual[2] = lm2.yActual
-            // self.yActual[3] = lm3.yActual
-            // self.yActual[4] = lm4.yActual
-            // self.yActual[5] = lm5.yActual
+                self.yActual[1] = yActual1
+                self.yActual[2] = yActual2
+                self.yActual[3] = yActual3
+                self.yActual[4] = yActual4
+                self.yActual[5] = yActual5
 
-            // self.k['807.15'] = lm1.k
-            // self.k['797.15'] = lm4.k
-            // self.k['787.15'] = lm5.k
+                self.k['807.15'] = data.k['807.15']
+                self.k['797.15'] = data.k['797.15']
+                self.k['787.15'] = data.k['787.15']
+            }
+
 
             // self.params = lm2.params
 
             // console.log(self.params.slice(54, 108))
-
-            // function step() {
-            //     setTimeout(function() {
-            //         try {
-            //             // bfgs.step()
-            //             self.lmConsole.data += `第${++iterator}次迭代: [收敛值 -> ${bfgs.convergence}] [搜索步长 -> ${bfgs.stepsize}]\r`
-
-            //             if (iterator < MAX_ITERATOR && self.isCalculating) {
-            //                 step()
-            //             } else {
-            //                 self.isCalculating = false
-            //             }
-
-            //         } catch(err) {
-            //             self.lmConsole.data += `拟合失败，请更改拟合初值\r`
-            //             self.isCalculating = false
-            //         }
-            //     }, 300)
-            // }
-            // step()
-
-
         },
 
         stopCalculate: function() {
@@ -396,7 +377,7 @@ export default {
                 csv += self.k['807.15'][i] + ',' + self.k['797.15'][i] + ',' + self.k['787.15'][i] + '\r\n'
             }
 
-            csv += 'Params\r\n'
+            csv += '\r\nParams\r\n'
             for (i = 0, len = self.params.length; i < len; i++) {
                 csv += self.params[i] + '\r\n'
             }
