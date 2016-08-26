@@ -1,19 +1,43 @@
 import { LumpedModel } from './LumpedModel.js'
 import BFGS from 'bfgs-algorithm'
 
-onmessage = (event) => {
-    const MAX_ITERATOR = 200
+// 全局变量，用于控制计算的暂停与继续
+let isCalculating = false
+
+onmessage = (message) => {
+    const data = message.data
+
+    switch (data.type) {
+        case 'start':
+            startCalculate(data)
+            break
+        case 'stop':
+            stopCalculate()
+            break
+        default:
+            break
+    }
+}
+
+const stopCalculate = () => {
+    console.log(isCalculating)
+    isCalculating = false
+}
+
+const startCalculate = (msgData) => {
+    isCalculating = true
+
+    const MAX_ITERATOR = 10
     const FITTING_OPTION = {
         isFittingK: false
     }
 
-    let initGuessFittingParams = event.data.initGuessFittingParams
-    let params = event.data.params
+    let initGuessFittingParams = msgData.initGuessFittingParams
+    let params = msgData.params
     let lumpedModels = []
     let lm = null
 
-    let i, len = params.length
-    for (i = 0; i < len; i++) {
+    for (let i = 0, len = params.length; i < len; i++) {
         lm = new LumpedModel(params[i].yStart, params[i].yActual, params[i].operatingParams, FITTING_OPTION)
         lumpedModels.push(lm)
     }
@@ -36,14 +60,23 @@ onmessage = (event) => {
         msg: ' ------ 拟合开始 ------ \r\n'
     })
 
+    calculate(bfgs, lumpedModels)
+
+    // postMessage({
+    //     bfgs: JSON.parse(bfgs),
+    //     lumpedModels: JSON.parse(lumpedModels)
+    // })
+}
+
+const calculate = (bfgs, lumpedModels) => {
+    let i = 0
     try {
-        for (let i = 0; i < MAX_ITERATOR; i++) {
+        while (isCalculating) {
             bfgs.step()
 
             postMessage({
                 type: 'calculating',
-                msg: `第${i + 1}次 => 目标函数值：${bfgs.fMin} \r\n`,
-                data: {}
+                msg: `第${++i}次 => 目标函数值：${bfgs.fMin} \r\n`
             })
 
             if (bfgs.fMin < 2) {
@@ -74,17 +107,6 @@ onmessage = (event) => {
 
                 break
             }
-
-            if (i === MAX_ITERATOR - 1) {
-                postMessage({
-                    type: 'over',
-                    msg: ' ------ 达到最大迭代次数 ------ \r\n',
-                    data: {
-                        k: lumpedModels[0].k,
-                        params: lumpedModels[0].params
-                    }
-                })
-            }
         }
     } catch(err) {
         postMessage({
@@ -92,9 +114,4 @@ onmessage = (event) => {
             msg: err
         })
     }
-
-    // postMessage({
-    //     bfgs: JSON.parse(bfgs),
-    //     lumpedModels: JSON.parse(lumpedModels)
-    // })
 }
