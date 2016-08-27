@@ -1,8 +1,8 @@
 <template>
 <div>
-    <!-- <l-m-header></l-m-header>
+    <l-m-header></l-m-header>
     <div class="main">
-        <l-m-tabs :tabs="tabs"></l-m-tabs> -->
+        <l-m-tabs :tabs="tabs"></l-m-tabs>
         <div>
             <input type="file" style="width: 300px">
             <button @click="importFile">导入</button>
@@ -11,7 +11,7 @@
             <button @click="calculate" :disabled="isCalculating">计算</button>
             <button @click="stopCalculate" :disabled="!isCalculating">终止</button>
         </div>
-        <!-- <section v-if="tabs[0].isActive">
+        <section v-if="tabs[0].isActive">
             <l-m-factors-table
                 :caption="operationalFactors.caption"
                 :factors="operationalFactors.factors">
@@ -23,7 +23,7 @@
             <l-m-factors-table
                 :caption="actualProducts.caption"
                 :factors="actualProducts.factors">
-            </l-m-factors-table> -->
+            </l-m-factors-table>
             <l-m-console
                 :caption="lmConsole.caption"
                 :data="lmConsole.data">
@@ -33,7 +33,7 @@
                 :headers="AETable.headers"
                 :k-rows="AETable.kRows">
             </l-m-a-e-table> -->
-           <!--  <l-m-k-table
+            <l-m-k-table
                 :caption="kTable.caption"
                 :headers="kTable.headers"
                 :k-matrix="kTable.kMatrix">
@@ -44,7 +44,7 @@
 
         </section>
     </div class="main">
-    <l-m-footer></l-m-footer> -->
+    <l-m-footer></l-m-footer>
 </div>
 </template>
 
@@ -62,8 +62,14 @@ import LMConsole from './components/LMConsole'
 import { LumpedModel } from './LumpedModel.js'
 import BFGS from 'bfgs-algorithm'
 
-const Worker = require('worker!./calculating.js')
-const worker = new Worker()
+import Worker from 'worker!./calculating.js'
+
+let worker = undefined
+const startWorker = () => {
+    if (typeof(worker) == "undefined") {
+        worker = new Worker()
+    }
+}
 
 const LUMPS = ['HS', 'HA', 'HR', 'DIESEL', 'GS', 'GO', 'GA', 'DGAS', 'LO3', 'LO4', 'LPGD', 'COKE']
 const ACTIVE_LUMPS = [
@@ -186,16 +192,6 @@ export default {
             var self = this
             self.isCalculating = true
 
-            // var initGuessFittingParams = [
-            //     0.0015, 0.0001, 0.0012, 0.0004, 0.0001, 0.00002, 0.0002, 0.0001, 0.00001,
-            //     0.00303, 0.00436, 0.00087, 0.00156, 0.00028, 0.00145, 0.00119, 0.00012, 0.00079,
-            //     0.00043, 0.00024, 0.00099, 0.00012, 0.00108, 0.0014, 0.00345, 0.00028,
-            //     0.00187, 0.00001, 0.00008, 0.00001, 0.00002, 0.00043, 0.00049,
-            //     0.00018, 0.00044, 0.00002, 0.00031, 0.00015, 0.00028, 0.00085,
-            //     0.000057, 0.000001, 0.000075, 0.000287, 0.000044, 0.000092, 0.000026, 0.000083, 0.000023,
-            //     0.000001, 0.000033, 0.000097, 0.00001, 0.000136,
-            //     0.0001, 0.0001, 0.0001
-            // ]
             function bindValue(target, isResultArray) {
                 var result = isResultArray ? [] : {}
                 target.forEach(function(item) {
@@ -274,36 +270,50 @@ export default {
 
             self.initGuessFittingParams = [26.323862525264236,309.07986327678253,387.3858001957765,219.10812266051664,2221.8420253556446,305.7916042963662,2221.9302201654923,2221.511634108338,6.680620142280736,16.84038445995668,960.5934277048681,815.1900776409183,400.9014674371774,9000.006248610196,8034.857629936584,8999.926827398805,8999.972512066512,16.44045105754445,6.884606096050719,105.76018554607474,121.25373481808212,75.54872157468003,26.74307726542151,33.70821469501424,28.01838066773411,28.033634483552618,4.601198339639468,32400000,20000000,58800000,2400000,2580000,2400000,2400000,29.98154494139616,450658.9940020465,206000000000000,329999.99827521964,19114.184916359744,329999.99982040667,330000.0069967139,17100000000,1330.9066422485505,394.7841715927623,34000000,7350000,34000000,34000000,12400000,18000.005471944834,203000000,18000.001930308423,18000.00815951124,2120000000,22.011592432942514,40.200870515263055,42.04854967805913,42.62948223961419,73.8564955011389,64.97550123089397,53.912920644014875,61.47435949408731,22.244677010323738,22.772642917047122,43.920321903707915,45.2299487407915,47.9755653580085,81.69736571649996,64.84863366986825,74.66344840928791,78.76587991692624,31.2885616971238,19.724257415214193,38.3964574573971,37.856310324570025,39.23215034977291,35.970330309192114,22.231147296149317,26.109434948646125,25.117397899549847,20.265677015794687,130.17948173204334,125.15910798112697,133.36535616925403,121.25311565061048,130.7628479013195,130.8371595127693,133.65426477926476,166.58781317795334,98.5567749080043,236.93085301484274,101.99043170372113,77.63993229246157,103.23942850062545,103.28868969059269,164.91062371970085,69.89736785616901,42.39554779326961,146.85326935839825,119.80543015224019,149.38020307796293,152.80467524052713,133.76488935814777,100.64662360125942,150.5957771312729,101.26545666543156,102.88287227996994,170.6852549392779,5e-8,4e-8,2e-8]
 
+            // 开启worker线程
+            startWorker()
+            // 开始计算
             worker.postMessage({
                 type: 'start',
-                initGuessFittingParams: self.initGuessFittingParams,
-                params: [
+                guess: self.initGuessFittingParams,
+                target: [
                     { yStart: yStart1, yActual: yActual1, operatingParams: operatingParams1 },
                     { yStart: yStart2, yActual: yActual2, operatingParams: operatingParams2 },
                     { yStart: yStart3, yActual: yActual3, operatingParams: operatingParams3 },
                     { yStart: yStart4, yActual: yActual4, operatingParams: operatingParams4 },
                     { yStart: yStart5, yActual: yActual5, operatingParams: operatingParams5 }
-                ]
+                ],
+                termination: 2
             })
+
+            const step = () => {
+                setTimeout(() => {
+                    if (self.isCalculating) {
+                        step()
+                    }
+
+                    worker ? worker.postMessage({
+                        type: 'step'
+                    }) : null
+                }, 100)
+            }
+            step()
 
             worker.onmessage = function(event) {
                 let data = event.data
                 self.lmConsole.data += data.msg
 
                 switch(data.type) {
-                    case 'calculating':
+                    case 'start':
                         break
                     case 'done':
-                    case 'over':
-                        console.log(data.data)
-                        dealData(data.data)
-                        // console.log(logData(data.data.k))
-                        // console.log(logData(data.data.params))
+                        break
+                    case 'end':
+                        dealData(data.result)
                         break
                     default:
                         break
                 }
-                // worker.terminate()
             }
 
             function logData(data) {
@@ -315,44 +325,13 @@ export default {
 
                 return str
             }
-
-            // console.log(bfgs)
-            // console.log(lm1)
-            // console.log(lm2)
-            // console.log(lm3)
-            // console.log(lm4)
-            // console.log(lm5)
-            function dealData(data) {
-                self.params = data.params
-
-                self.yCalcu[1] = data.yCalcu[0]
-                self.yCalcu[2] = data.yCalcu[1]
-                self.yCalcu[3] = data.yCalcu[2]
-                self.yCalcu[4] = data.yCalcu[3]
-                self.yCalcu[5] = data.yCalcu[4]
-
-                self.yActual[1] = yActual1
-                self.yActual[2] = yActual2
-                self.yActual[3] = yActual3
-                self.yActual[4] = yActual4
-                self.yActual[5] = yActual5
-
-                self.k['807.15'] = data.k['807.15']
-                self.k['797.15'] = data.k['797.15']
-                self.k['787.15'] = data.k['787.15']
-            }
-
-
-            // self.params = lm2.params
-
-            // console.log(self.params.slice(54, 108))
         },
 
         stopCalculate: function() {
             this.isCalculating = false
-            worker.postMessage({
-                type: 'stop'
-            })
+            worker.terminate()
+            worker = undefined
+            this.lmConsole.data += ' ------ 计算终止 ------ \r\n'
         },
 
         importFile: function() {

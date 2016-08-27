@@ -1,117 +1,98 @@
 import { LumpedModel } from './LumpedModel.js'
 import BFGS from 'bfgs-algorithm'
 
-// 全局变量，用于控制计算的暂停与继续
-let isCalculating = false
+let lumpedModels = []
+let bfgs = null
+let termination = 0
+let iterator = 0
 
 onmessage = (message) => {
+    // 传递过来的data类型，应该包含
+    // {
+    //     type: 'start' || 'step', 操作的类型
+    //     guess: [],               猜想值
+    //     target: [],              目标集总对象的数量
+    //     termination: 2           目标函数期望值
+    // }
     const data = message.data
 
     switch (data.type) {
         case 'start':
-            startCalculate(data)
+            start(data)
             break
-        case 'stop':
-            stopCalculate()
+        case 'step':
+            step()
             break
         default:
             break
     }
 }
 
-const stopCalculate = () => {
-    console.log(isCalculating)
-    isCalculating = false
-}
+const start = (data) => {
+    // 重置
+    lumpedModels = []
+    bfgs = null
+    iterator = 0
+    termination = data.termination
 
-const startCalculate = (msgData) => {
-    isCalculating = true
+    let guess = data.guess
+    let target = data.target
 
-    const MAX_ITERATOR = 10
-    const FITTING_OPTION = {
-        isFittingK: false
-    }
-
-    let initGuessFittingParams = msgData.initGuessFittingParams
-    let params = msgData.params
-    let lumpedModels = []
     let lm = null
-
-    for (let i = 0, len = params.length; i < len; i++) {
-        lm = new LumpedModel(params[i].yStart, params[i].yActual, params[i].operatingParams, FITTING_OPTION)
+    for (let i = 0, len = target.length; i < len; i++) {
+        lm = new LumpedModel(target[i].yStart, target[i].yActual, target[i].operatingParams, target[i].option)
         lumpedModels.push(lm)
     }
 
-    const objectiveFn = (x) => {
+    let objectiveFn = (x) => {
         let objectiveValue = 0
 
         let i, len = lumpedModels.length
-        for (i = 0; i < len; i++) {
+        for (let i = 0, len = target.length; i < len; i++) {
             objectiveValue += lumpedModels[i].objectiveFn(x)
         }
 
         return objectiveValue
     }
 
-    const bfgs = new BFGS(objectiveFn, initGuessFittingParams)
+    bfgs = new BFGS(objectiveFn, guess)
 
     postMessage({
         type: 'start',
         msg: ' ------ 拟合开始 ------ \r\n'
     })
-
-    calculate(bfgs, lumpedModels)
-
-    // postMessage({
-    //     bfgs: JSON.parse(bfgs),
-    //     lumpedModels: JSON.parse(lumpedModels)
-    // })
 }
 
-const calculate = (bfgs, lumpedModels) => {
-    let i = 0
-    try {
-        while (isCalculating) {
-            bfgs.step()
+const step = () => {
+    bfgs.step()
 
-            postMessage({
-                type: 'calculating',
-                msg: `第${++i}次 => 目标函数值：${bfgs.fMin} \r\n`
-            })
+    postMessage({
+        type: 'calculating',
+        msg: `第${++iterator}次 => 目标函数值：${bfgs.fMin} \r\n`
+    })
 
-            if (bfgs.fMin < 2) {
-                let params = []
-                for (let j = 0; j < lumpedModels.length; j++) {
-                    params.push(lumpedModels[j].k)
-                }
+    detect()
+}
 
-                postMessage({
-                    type: 'done',
-                    msg: ' ------ 拟合完成 ------ \r\n',
-                    data: {
-                        k: {
-                            '807.15': lumpedModels[0].k,
-                            '797.15': lumpedModels[3].k,
-                            '787.15': lumpedModels[4].k
-                        },
-                        params: lumpedModels[0].params,
-                        yCalcu: [
-                            lumpedModels[0].getProduct(),
-                            lumpedModels[1].getProduct(),
-                            lumpedModels[2].getProduct(),
-                            lumpedModels[3].getProduct(),
-                            lumpedModels[4].getProduct()
-                        ]
-                    }
-                })
-
-                break
-            }
+const detect = () => {
+    if (bfgs.fMin < termination) {
+        let result = {
+            params: [], // 只有一组，因为每一个集总对象的params都是一样的
+            yCalcu: [], // yCalcu与k一样是根据计算的集总对象的数量确定的
+            k: []
         }
-    } catch(err) {
+
+        result.params = lumpedModels.length > 0 ? lumpedModels[0] : []
+
+        for (let i = 0, len = lumpedModels.length; i < len; i++) {
+            result.yCalcu.push(lumpedModels[i].getProduct())
+            result.k.push(lumpedModels[i].k)
+        }
+
         postMessage({
-            type: 'err',
-            msg: err
+            type: 'end',
+            msg: ' ------ 拟合完成 ------ \r\n',
+            result: result
         })
     }
 }
