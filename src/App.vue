@@ -277,10 +277,10 @@ export default {
                 type: 'start',
                 guess: self.initGuessFittingParams,
                 target: [
-                    { yStart: yStart1, yActual: yActual1, operatingParams: operatingParams1 },
+                    // { yStart: yStart1, yActual: yActual1, operatingParams: operatingParams1 },
                     { yStart: yStart2, yActual: yActual2, operatingParams: operatingParams2 },
-                    { yStart: yStart3, yActual: yActual3, operatingParams: operatingParams3 },
-                    { yStart: yStart4, yActual: yActual4, operatingParams: operatingParams4 },
+                    // { yStart: yStart3, yActual: yActual3, operatingParams: operatingParams3 },
+                    // { yStart: yStart4, yActual: yActual4, operatingParams: operatingParams4 },
                     { yStart: yStart5, yActual: yActual5, operatingParams: operatingParams5 }
                 ],
                 termination: 2
