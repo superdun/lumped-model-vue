@@ -1,20 +1,23 @@
 <template>
-    <div class="l-m-tabs">
-        <each-tab v-for="tab in tabs" 
-                  :label="tab.label" 
-                  :content="tab.content" 
-                  :is-active="tab.isActive">
-        </each-tab>
-    </div>
+    <nav>
+        <ul>
+            <li v-for="tab in tabs"
+                @click="changeTab(tab)"
+                :class="{active:tab.isActive}">
+                {{ tab.name }}
+            </li>
+        </ul>
+    </nav>
 </template>
 
 <script>
-import EachTab from './EachTab'
-
 export default {
-    data() {
-        return {
-            isShowTooltip: false
+    methods: {
+        changeTab: function(tab) {
+            this.tabs.forEach(function(tab) {
+                tab.isActive = false
+            })
+            tab.isActive = true
         }
     },
 
@@ -23,19 +26,21 @@ export default {
             type: Array,
             required: true
         }
-    },
-
-    components: {
-        EachTab
     }
 }
 </script>
 
 <style scoped>
-.l-m-tabs {
-    display: flex;
-    justify-content: space-between;
-    height: 30px;
-    margin: 10px 0;
+ul {
+
+}
+ul > li {
+    display: inline-block;
+    text-align: center;
+    width: 100px;
+    cursor: pointer;
+}
+ul > li.active {
+    background-color: #046d6e;
 }
 </style>

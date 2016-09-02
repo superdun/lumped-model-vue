@@ -1,8 +1,6 @@
 <template>
-<div>
-    <l-m-header></l-m-header>
-    <div class="main">
-        <l-m-tabs :tabs="tabs"></l-m-tabs>
+    <l-m-header :tabs="tabs"></l-m-header>
+    <!-- <div class="main">
         <div>
             <input type="file" style="width: 300px">
             <button @click="importFile">导入</button>
@@ -27,13 +25,13 @@
             <l-m-console
                 :caption="lmConsole.caption"
                 :data="lmConsole.data">
-            </l-m-console>
+            </l-m-console> -->
             <!-- <l-m-a-e-table
                 :caption="AETable.caption"
                 :headers="AETable.headers"
                 :k-rows="AETable.kRows">
             </l-m-a-e-table> -->
-            <l-m-k-table
+            <!-- <l-m-k-table
                 :caption="kTable.caption"
                 :headers="kTable.headers"
                 :k-matrix="kTable.kMatrix">
@@ -43,16 +41,14 @@
         <section v-if="tabs[1].isActive">
 
         </section>
-    </div class="main">
+    </div class="main"> -->
     <l-m-footer></l-m-footer>
-</div>
 </template>
 
 <script>
 import Papa from 'papaparse'
 
-import LMHeader from './components/LMHeader'
-import LMTabs from './components/LMTabs'
+import LMHeader from './containers/LMHeader'
 import LMFooter from './components/LMFooter'
 import LMFactorsTable from './components/LMFactorsTable'
 import LMAETable from './components/LMAETable'
@@ -91,8 +87,8 @@ export default {
     data() {
         return {
             tabs: [
-                { label: '反算', content: '计算反应速率常数的过程', isActive: true },
-                { label: '正算', content: '使用反应速率常数预测产物的过程', isActive: false }
+                { name: '正算', isActive: true },
+                { name: '反算', isActive: false },
             ],
 
             operationalFactors: {
@@ -390,12 +386,7 @@ export default {
 
     components: {
         LMHeader,
-        LMTabs,
-        LMFooter,
-        LMFactorsTable,
-        LMAETable,
-        LMConsole,
-        LMKTable
+        LMFooter
     }
 }
 
@@ -435,6 +426,7 @@ html {
 }
 
 body {
+    position: relative;
     font-size: 14px;
     color: #ffebc8;
     background-color: #161819;
