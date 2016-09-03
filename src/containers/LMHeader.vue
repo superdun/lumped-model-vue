@@ -2,14 +2,18 @@
     <header>
         <img src="../assets/ecust.png" alt="ecust_logo">
         <h1>{{ title }}</h1>
-        <l-m-tabs :tabs="tabs"></l-m-tabs>
+        <nav-tabs :tabs="tabs"></nav-tabs>
     </header>
 </template>
 
 <script>
-import LMTabs from '../components/LMTabs.vue'
+import NavTabs from '../components/NavTabs.vue'
 
 export default {
+    components: {
+        NavTabs
+    },
+    
     data() {
         return {
             title: '重油催化裂化十二集总数学模型'
@@ -21,22 +25,19 @@ export default {
             type: Array,
             required: true
         }
-    },
-
-    components: {
-        LMTabs
     }
 }
 </script>
 
 <style scoped>
 header {
-    position: absolute;
+    position: fixed;
+    min-width: 1000px;
     width: 100%;
     height: 50px;
     line-height: 50px;
-    background-color: #212528;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.7);
+    background-color: #161819;
 }
 
 header img {
@@ -56,6 +57,6 @@ header h1 {
 
 header nav {
     float: right;
-    line-height: 50px;
+    line-height: 48px;
 }
 </style>

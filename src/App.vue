@@ -1,5 +1,13 @@
 <template>
-    <l-m-header :tabs="tabs"></l-m-header>
+    <l-m-header :tabs="[firstTab, secondTab]"></l-m-header>
+    <main>
+        <div v-show="firstTab.isActive" class="tabs">
+            <l-m-aside :setting="modelSetting"></l-m-aside>
+        </div>
+        <div v-show="secondTab.isActive" class="tabs">
+            
+        </div>
+    </main>
     <!-- <div class="main">
         <div>
             <input type="file" style="width: 300px">
@@ -49,7 +57,10 @@
 import Papa from 'papaparse'
 
 import LMHeader from './containers/LMHeader'
-import LMFooter from './components/LMFooter'
+import LMFooter from './containers/LMFooter'
+import LMAside from './containers/LMAside'
+
+
 import LMFactorsTable from './components/LMFactorsTable'
 import LMAETable from './components/LMAETable'
 import LMKTable from './components/LMKTable'
@@ -84,12 +95,21 @@ const ACTIVE_LUMPS = [
 ]
 
 export default {
+    components: {
+        LMHeader,
+        LMAside,
+        LMFooter
+    },
+
     data() {
         return {
-            tabs: [
-                { name: '正算', isActive: true },
-                { name: '反算', isActive: false },
-            ],
+            firstTab: { name: '正算', isActive: true },
+            secondTab: { name: '反算', isActive: false },
+
+            modelSetting: {
+                fittingMethod: 'K',
+                fittingNumber: 1
+            },
 
             operationalFactors: {
                 caption: '操作条件',
@@ -382,11 +402,6 @@ export default {
         downloadTemplate: function() {
 
         }
-    },
-
-    components: {
-        LMHeader,
-        LMFooter
     }
 }
 
@@ -437,13 +452,19 @@ body, ul {
     margin: 0;
 }
 
+main {
+    overflow: auto;
+    height: 100%;
+    padding: 50px 0 30px 0;
+}
+
 button, input {
     font-family: inherit;
     border: 0;
     border-radius: 3px;
 }
 
-input {
+input[type="text"] {
     padding: 0 5px;
     color: #000000;
     background-color: #6e6c49;
@@ -451,19 +472,20 @@ input {
     height: 24px;
     width: 60px;
 }
-input:focus {
+input[type="text"]:focus {
     background-color: #eb8b19;
 }
-input:disabled {
+input[type="text"]:disabled {
     background-color: #3e3e3e;
 }
-input:read-only {
+input[type="text"]:read-only {
     background-color: #e0ad70;
 }
 
 button {
     color: #fff;
     height: 24px;
+    line-height: 24px;
     text-align: center;
     background-color: #0f898a;
     padding: 0 10px;
@@ -501,11 +523,14 @@ table th {
 table td {
     padding: 0 5px;
 }
-
-.main {
-    overflow: auto;
-    height: 100%;
-    padding: 60px 0 30px;
+.arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 6px solid #fff;
+    border-radius: 10px; 
 }
 
 .lm-content-wrap {

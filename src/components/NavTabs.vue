@@ -41,6 +41,7 @@ ul > li {
     cursor: pointer;
 }
 ul > li.active {
-    background-color: #046d6e;
+    background-color: #008282;
+    border-bottom: 2px solid #eb8b19;
 }
 </style>

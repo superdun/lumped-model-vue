@@ -4,20 +4,18 @@
     </footer>
 </template>
 
-<script>
-</script>
-
 <style scoped>
 footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 30px;
     position: fixed;
     bottom: 0;
-    left: 0;
-    right: 0;
+    width: 100%;
+    height: 30px;
+    background-color: #161819;
     box-shadow: 2px -5px 5px rgba(0, 0, 0, 0.7);
-    background-color: #212528;
+}
+footer > p {
+    line-height: 30px;
+    text-align: center;
+    margin: 0;
 }
 </style>
