@@ -3,6 +3,11 @@
     <main>
         <div v-show="firstTab.isActive" class="tabs">
             <l-m-aside :setting="modelSetting"></l-m-aside>
+            <l-m-init-condition 
+                v-for="condition in conditions"
+                :init-condition="condition"
+                :index="$index">        
+            </l-m-init-condition>
         </div>
         <div v-show="secondTab.isActive" class="tabs">
             
@@ -18,22 +23,12 @@
             <button @click="stopCalculate" :disabled="!isCalculating">终止</button>
         </div>
         <section v-if="tabs[0].isActive">
-            <l-m-factors-table
-                :caption="operationalFactors.caption"
-                :factors="operationalFactors.factors">
-            </l-m-factors-table>
-            <l-m-factors-table
-                :caption="feedFactors.caption"
-                :factors="feedFactors.factors">
-            </l-m-factors-table>
-            <l-m-factors-table
-                :caption="actualProducts.caption"
-                :factors="actualProducts.factors">
-            </l-m-factors-table>
             <l-m-console
                 :caption="lmConsole.caption"
                 :data="lmConsole.data">
-            </l-m-console> -->
+            </l-m-console>
+             -->
+            
             <!-- <l-m-a-e-table
                 :caption="AETable.caption"
                 :headers="AETable.headers"
@@ -54,21 +49,22 @@
 </template>
 
 <script>
+// 导入csv解析库
 import Papa from 'papaparse'
 
+// 自定义组件组装的容器
 import LMHeader from './containers/LMHeader'
 import LMFooter from './containers/LMFooter'
 import LMAside from './containers/LMAside'
+import LMInitCondition from './containers/LMInitCondition'
 
-
-import LMFactorsTable from './components/LMFactorsTable'
+// 自定义组件
 import LMAETable from './components/LMAETable'
 import LMKTable from './components/LMKTable'
 import LMConsole from './components/LMConsole'
 
-import { LumpedModel } from './LumpedModel.js'
-import BFGS from 'bfgs-algorithm'
-
+// 集总模型相关
+import * as LumpedModel from './LumpedModel.js'
 import Worker from 'worker!./calculating.js'
 
 let worker = undefined
@@ -78,27 +74,12 @@ const startWorker = () => {
     }
 }
 
-const LUMPS = ['HS', 'HA', 'HR', 'DIESEL', 'GS', 'GO', 'GA', 'DGAS', 'LO3', 'LO4', 'LPGD', 'COKE']
-const ACTIVE_LUMPS = [
-    [false, false, false, false, false, false, false, false, false, false, false, false],
-    [false, false, false, false, false, false, false, false, false, false, false, false],
-    [false, false, false, false, false, false, false, false, false, false, false, false],
-    [true, true, true, false, false, false, false, false, false, false, false, false],
-    [true, true, true, true, false, true, false, false, false, false, false, false],
-    [true, true, true, true, true, false, false, false, false, false, false, false],
-    [true, true, true, true, true, true, false, false, false, false, false, false],
-    [true, true, true, true, true, true, true, false, false, false, false, false],
-    [true, true, true, true, true, true, true, false, false, false, false, false],
-    [true, true, true, true, true, true, true, false, false, false, false, false],
-    [true, true, true, true, true, true, true, false, false, false, false, false],
-    [true, true, true, true, true, true, true, false, false, false, false, false]
-]
-
 export default {
     components: {
         LMHeader,
         LMAside,
-        LMFooter
+        LMFooter,
+        LMInitCondition
     },
 
     data() {
@@ -108,43 +89,25 @@ export default {
 
             modelSetting: {
                 fittingMethod: 'K',
-                fittingNumber: 1
-            },
-
-            operationalFactors: {
-                caption: '操作条件',
-                factors: [
-                    { name: '操作温度(K)', key: 'temperature', value: '' },
-                    { name: '操作压力(Pa)', key: 'pressure', value: '' },
-                    { name: '剂油比', key: 'catalystOilRatio', value: '' },
-                    { name: '停留时间', key: 'residenceTime', value: '' },
-                    { name: '碱氮含量', key: 'NPercent', value: '' }
-                ]
-            },
-
-            feedFactors: {
-                caption: '进料组成',
-                factors: [
-                    { name: 'HS', key: 0, value: '' },
-                    { name: 'HA', key: 1, value: '' },
-                    { name: 'HR', key: 2, value: '' }
-                ]
-            },
-
-            actualProducts: {
-                caption: '实际产物',
-                factors: function(lumps) {
-                    var result = []
-                    for (var i = 0, len = lumps.length; i < len; i++) {
-                        result.push({
-                            name: lumps[i],
-                            key: i,
-                            value: ''
-                        })
+                fittingNumber: 1,
+                add: () => {
+                    this.modelSetting.fittingNumber++
+                    this.conditions.push(new LumpedModel.InitCondition())
+                },
+                sub: () => {
+                    let val = this.modelSetting.fittingNumber - 1
+                    if (val < 1) {
+                        this.modelSetting.fittingNumber = 1
+                    } else {
+                        this.modelSetting.fittingNumber = val
+                        this.conditions.pop()
                     }
-                    return result
-                }(LUMPS)
+                }
             },
+
+            conditions: [
+                new LumpedModel.InitCondition()
+            ],
 
             AETable: {
                 caption: '初值设定',
@@ -166,8 +129,8 @@ export default {
 
             kTable: {
                 caption: '速率常数初值设置',
-                headers: LUMPS,
-                kMatrix: generatorKMatrix(LUMPS, ACTIVE_LUMPS)
+                headers: LumpedModel.LUMPS,
+                kMatrix: generatorKMatrix(LumpedModel.LUMPS, LumpedModel.ACTIVE_LUMPS)
             },
 
             isCalculating: false,
@@ -405,6 +368,10 @@ export default {
     }
 }
 
+function setInitCondition(n) {
+
+}
+
 function generatorKMatrix(lumps, activeReaction) {
     let len = lumps.length
     let kMatrix = []
@@ -502,26 +469,8 @@ button:disabled {
     background-color: #636363;
 }
 
-table {
-    vertical-align: top;
-    display: inline-block;
-    margin: 10px 20px;
-    padding: 10px;
-    background-color: #132222;
-    box-shadow: 5px 5px 5px #000;
-    border-radius: 5px;
-}
-caption {
-    background-color: #1a4444;
-    color: #fff;
-    padding: 5px;
-    margin: -10px -10px 10px;
-}
-table th {
-    text-align: center;
-}
-table td {
-    padding: 0 5px;
+.tabs {
+    position: relative;
 }
 .arrow {
     display: inline-block;

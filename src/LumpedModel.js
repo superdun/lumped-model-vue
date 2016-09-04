@@ -1,8 +1,5 @@
 import RungeKutta from 'runge-kutta-4'
 
-// 气体常量, 单位：m3 * Pa * K-1 * mol-1
-const UNIVERSAL_GAS_CONSTANT = 8.3144598;
-
 class LumpedModel {
     constructor(yStart, yActual, operatingParams, options) {
         operatingParams = operatingParams || {}
@@ -196,8 +193,63 @@ function calculateAE(o1, o2) {
     }
 }
 
+function setLumps(lumps) {
+    var result = []
+    for (var i = 0, len = lumps.length; i < len; i++) {
+        result.push({
+            name: lumps[i],
+            key: i,
+            value: ''
+        })
+    }
+    return result
+}
+
+
+// 气体常量, 单位：m3 * Pa * K-1 * mol-1
+const UNIVERSAL_GAS_CONSTANT = 8.3144598;
+// 十二集总划分
+const LUMPS = ['HS', 'HA', 'HR', 'DIESEL', 'GS', 'GO', 'GA', 'DGAS', 'LO3', 'LO4', 'LPGD', 'COKE']
+// 反应常数矩阵 
+const ACTIVE_LUMPS = [
+    [false, false, false, false, false, false, false, false, false, false, false, false],
+    [false, false, false, false, false, false, false, false, false, false, false, false],
+    [false, false, false, false, false, false, false, false, false, false, false, false],
+    [true, true, true, false, false, false, false, false, false, false, false, false],
+    [true, true, true, true, false, true, false, false, false, false, false, false],
+    [true, true, true, true, true, false, false, false, false, false, false, false],
+    [true, true, true, true, true, true, false, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false],
+    [true, true, true, true, true, true, true, false, false, false, false, false]
+]
+
+class InitCondition {
+    constructor() {
+        this.operational = [
+            { name: '操作温度(K)', key: 'temperature', value: '' },
+            { name: '操作压力(Pa)', key: 'pressure', value: '' },
+            { name: '剂油比', key: 'catalystOilRatio', value: '' },
+            { name: '停留时间(s)', key: 'residenceTime', value: '' },
+            { name: '碱氮含量', key: 'NPercent', value: '' }
+        ]
+        this.feed = [
+            { name: 'HS', key: 0, value: '' },
+            { name: 'HA', key: 1, value: '' },
+            { name: 'HR', key: 2, value: '' }
+        ]
+        this.product = setLumps(LUMPS)
+    }
+}
+
 export {
     LumpedModel,
     calculateArrhenius,
-    calculateAE
+    calculateAE,
+    InitCondition,
+    UNIVERSAL_GAS_CONSTANT,
+    LUMPS,
+    ACTIVE_LUMPS
 }

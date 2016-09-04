@@ -10,9 +10,9 @@
 
 			<div>
 				<label class="control-label">二、拟合组数</label>
-				<button @click="add">+</button>
+				<button @click="setting.add()">+</button>
 				<input type="text" v-model="setting.fittingNumber" number>
-				<button @click="sub">-</button>
+				<button @click="setting.sub()">-</button>
 			</div>
 		</div>
 		<span class="switch" @click="changeAsideStatus()">
@@ -32,16 +32,6 @@ export default {
 	methods: {
 		changeAsideStatus: function() {
 			this.isHiddenAside = !this.isHiddenAside
-			console.log(this.setting)
-		},
-
-		add: function() {
-			this.setting.fittingNumber++
-		},
-
-		sub: function() {
-			var num = this.setting.fittingNumber - 1
-			this.setting.fittingNumber = (num < 1) ? 1 : num
 		}
 	},
 
@@ -57,23 +47,28 @@ export default {
 <style scoped>
 h4 {
 	margin: 0;
-	font-weight: 400;
-	background-color: #008282;
 	padding: 5px 10px;
+	background-color: #008282;
 	text-align: center;
+	font-weight: 400;
 }
 aside {
+	z-index: 10;
 	transition: 0.5s;
-	width: 250px;
-	position: relative;
-	margin: 10px 0;
 	display: inline-block;
-	background-color: #232628;
+	
+	position: fixed;
+	left: 50%;
+	margin-left: -125px;
+	
+	width: 250px;
 	line-height: 24px;
+	
+	background-color: #232628;
 	box-shadow: 2px 2px 5px #000;
 }
 aside.hidden {
-	transform: translateX(-250px);
+	transform: translateY(-100%);
 }
 .setting-content {
 	margin: 0 10px 10px;
@@ -91,15 +86,14 @@ input {
 	cursor: pointer;
 	display: inline-block;
 	position: absolute;
-	right: -10px;
-	top: 0;
-	width: 10px;
-	height: 100%;
+	width: 100%;
+	height: 10px;
 	background-color: #333739;
-	border-radius: 0 2px 2px 0;
+	border-radius: 0 0 2px 2px;
 	box-shadow: 2px 2px 5px #000;
 }
 .switch > .arrow {
+	transform: rotate(90deg);
 	transition: 0.5s;
 	position: absolute;
     top: 50%;
@@ -108,6 +102,6 @@ input {
     margin-top: -10px;
 }
 aside.hidden .arrow {
-	transform: rotate(180deg);
+	transform: rotate(270deg);
 }
 </style>

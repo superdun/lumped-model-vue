@@ -31,7 +31,9 @@ export default {
 
 <style scoped>
 header {
+    z-index: 100;
     position: fixed;
+    top: 0;
     min-width: 1000px;
     width: 100%;
     height: 50px;
